@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<!-- Add bootstrap or other CSS here -->
+
+		<title>Netbalance | The K8s Web Configurator</title>
+	</head>
+	
+	<div style="background-color: #f6f7cd; padding: 0px; white-space: nowrap;">
+		<nav>
+			<a href="{% url 'template_dashboard' %}" style="display: inline;">Dashboard</a><p style="display: inline;"> | </p>
+			<a href="{% url 'template_settings' %}" style="display: inline;">System Settings</a><p style="display: inline;"> | </p>
+			<p style="display: inline;">Server time: <b>{{server_time}}</b></p>
+		</nav>
+	</div>
+
+	<!-- This block template is reserved for dynamic content. -->
+
+	{% block content %}
+	{% endblock %}
+
+</html>
