@@ -30,7 +30,7 @@ root@odroid:/home/ubuntu# tree
 ```
 
 ## Files of Importance
-- `netbalance/dashboard/templates/*`
+- `netbalance/dashboard/templates/*.html`
 - `netbalance/dashboard/urls.py`
 - `netbalance/dashboard/views.py`
 - `netbalance/netbalance/settings.py`
