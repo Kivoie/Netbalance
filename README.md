@@ -4,82 +4,29 @@ Capstone 2022: Data Center Network Monitoring and Web App Service Provisioning A
 
 ## File Structure
 ```
-PS \netbalance> tree /f               
-
-netbalance
-|
-│   db.sqlite3                                             
-│   manage.py
-│
-├───netbalanceApp                                            
-│   │   admin.py
-│   │   apps.py                                                 
-│   │   forms.py
-│   │   models.py
-│   │   tests.py
-│   │   urls.py
-│   │   views.py
-│   │   __init__.py
-│   │                                    
-│   ├───media                                                      
-│   ├───migrations                                           
-│   │
-│   ├───static
-│   │   ├───assets
-│   │   │   ├───brand
-│   │   │   │   │   bootstrap-logo-white.png
-│   │   │   │   │   bootstrap-logo.png
-│   │   │   │   │   favicon_io.zip
-│   │   │   │   │   grafana_logo.png
-│   │   │   │   │
-│   │   │   │   └───favicon
-│   │   │   │           android-chrome-192x192.png
-│   │   │   │           android-chrome-512x512.png
-│   │   │   │           apple-touch-icon.png
-│   │   │   │           favicon-16x16.png
-│   │   │   │           favicon-32x32.png
-│   │   │   │           favicon.ico
-│   │   │   │           site.webmanifest
-│   │   │   │
-│   │   │   └───dist
-│   │   │       ├───css
-│   │   │       │       bootstrap.min.css
-│   │   │       │
-│   │   │       └───js
-│   │   │               bootstrap.bundle.min.js
-│   │   │               bootstrap.bundle.min.js.map
-│   │   │
-│   │   ├───css
-│   │   │       filepond.css
-│   │   │       login.css
-│   │   │       management.css
-│   │   │       management.rtl.css
-│   │   │       register.css
-│   │   │
-│   │   └───javascript
-│   │           filepond.js
-│   │           management.js
-│   │           register.js
-│   │
-│   ├───templates
-│   │       homepage.html
-│   │       login.html
-│   │       management.html
-│   │       management_data.html
-│   │       register.html
-│   │       upload_file.html
-│   │
-│   └───__pycache__
-│
-└───netbalanceProject
-    │   asgi.py
-    │   settings.py
-    │   urls.py
-    │   wsgi.py
-    │   __init__.py
-    │
-    └───__pycache__
-
+root@odroid:/home/ubuntu# tree
+`-- netbalance
+    |-- dashboard
+    |   |-- __init__.py
+    |   |-- admin.py
+    |   |-- apps.py
+    |   |-- migrations
+    |   |-- models.py
+    |   |-- templates
+    |   |   |-- base.html
+    |   |   |-- dashboard.html
+    |   |   `-- system_settings.html
+    |   |-- tests.py
+    |   |-- urls.py
+    |   `-- views.py
+    |-- db.sqlite3
+    |-- manage.py
+    `-- netbalance
+        |-- __init__.py
+        |-- asgi.py
+        |-- settings.py
+        |-- urls.py
+        `-- wsgi.py
 ```
 
 ## Files of Importance
