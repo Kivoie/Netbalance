@@ -7,9 +7,8 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from netbalanceApp.models import NewApplication
 
-#other modules
+# other modules
 from datetime import datetime
-
 
 
 def login(request):
@@ -51,38 +50,40 @@ def management(request):
 
     if request.method == 'POST':
         node_number = int(request.POST['node_number'])
-    
+
         ip_address = str(request.POST['ip']).strip()
-        
+
         timestamp = datetime.now()
         timestamp = str(timestamp.strftime("%Y/%m/%d %H:%M:%S")).strip()
-        
+
         description = str(request.POST['description'])
-        
-        new_node = NewApplication(node_number=node_number, ip=ip_address, date=timestamp, description=description)
-        
+
+        new_node = NewApplication(
+            node_number=node_number, ip=ip_address, date=timestamp, description=description)
+
         new_node.save()
-        
-        print(new_node.node_number, new_node.ip, new_node.date, new_node.description)
-        
+
+        print(new_node.node_number, new_node.ip,
+              new_node.date, new_node.description)
+
         return redirect('management')
-        
+
     elif request.method == 'GET':
-        
+
         raw_list = NewApplication.objects.all().values()
         dict = {}
-        
+
         for entry in raw_list:
             dict = {
-            'id': entry['id'],
-            'node_number': entry['node_number'],
-            'app_name': entry['app_name'],
-            'ip': entry['ip'],
-            'date': entry['date'],
-            'description': entry['description']
+                'id': entry['id'],
+                'node_number': entry['node_number'],
+                'app_name': entry['app_name'],
+                'ip': entry['ip'],
+                'date': entry['date'],
+                'description': entry['description']
             }
-            
-        return render(request, 'management.html', {'sql_table': dict})
+
+        return render(request, 'management_data.html', {'sql_table': dict})
 
 
 @login_required(login_url='login')
