@@ -83,7 +83,7 @@ def management(request):
                 'description': entry['description']
             }
 
-        return render(request, 'management_data.html', {'sql_table': dict})
+        return render(request, 'management.html', {'sql_table': raw_list})
 
 
 @login_required(login_url='login')

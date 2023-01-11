@@ -134,9 +134,75 @@
       </nav>
 
       <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-        {% block content %}
-
-        {% endblock content %}
+        <h2>Application Name</h2>
+        <div class="table-responsive ">
+          <table class="table table-striped table-sm table-hover">
+            <thead>
+              <tr>
+                <th scope="col">Node #</th>
+                <th scope="col">IP Address</th>
+                <th scope="col">Site Name</th>
+                <th scope="col">Date Created</th>
+                <th scope="col">Description</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for new_entry in sql_table %}
+              <tr>
+                <td>{{new_entry.node_number}}</td>
+                <td>{{new_entry.ip}}</td>
+                <td></td>
+                <td>{{new_entry.date}}</td>
+                <td>{{new_entry.description}}</td>
+              </tr>
+              {% endfor %}
+              </tr>
+              <form method="post" class="management">
+                {% csrf_token %}
+                <tr>
+                  <td>
+                    <div class="input-group-sm">
+                      <input id="node_number" name="node_number" type="number" min="1" max="65535" step="1" required=""
+                        class="form-control" placeholder="#" aria-label="Sizing example input"
+                        aria-describedby="inputGroup-sizing-sm">
+                    </div>
+                  </td>
+                  <td>
+                    <div class="input-group-sm">
+                      <input type="text" class="form-control" placeholder="0.0.0.0" aria-label="Sizing example input"
+                        aria-describedby="inputGroup-sizing-sm" minlength="7" maxlength="15" size="15"
+                        pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" id="ip"
+                        name="ip">
+                    </div>
+                  </td>
+                  <td>
+                    <div class="input-group-sm">
+                      <input type="text" class="form-control" placeholder="local" id="location" name="location"
+                        aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                    </div>
+                  </td>
+                  <td>
+                    <div class="input-group-sm">
+                      Current Time
+                    </div>
+                  </td>
+                  <td>
+                    <div class="input-group-sm">
+                      <input type="text" class="form-control" placeholder="node info" id="description"
+                        name="description" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                    </div>
+                  </td>
+                  <td>
+                    <div class="input-group-sm">
+                      <button type="submit" class="btn btn-secondary">Add</button>
+                    </div>
+                  </td>
+              </form>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </main>
     </div>
   </div>
