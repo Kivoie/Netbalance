@@ -16,9 +16,6 @@ netbalance
 │   ├── migrations
 │   │   ├── 0001_initial.py
 │   │   ├── __init__.py
-│   │   └── __pycache__
-│   │       ├── 0001_initial.cpython-310.pyc
-│   │       └── __init__.cpython-310.pyc
 │   ├── models.py
 │   ├── static
 │   │   ├── assets
