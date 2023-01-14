@@ -17,6 +17,7 @@ netbalance
 │   │   ├── 0001_initial.py
 │   │   ├── __init__.py
 │   ├── models.py
+│   ├── downloads
 │   ├── static
 │   │   ├── assets
 │   │   │   ├── brand
