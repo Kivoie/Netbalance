@@ -1,3 +1,4 @@
+from codecs import register_error
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -6,6 +7,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from netbalanceApp.models import NewApplication
+from django.core.files.storage import FileSystemStorage
 
 #other modules
 from datetime import datetime
@@ -42,7 +44,7 @@ def register(request):
     return render(request, 'register.html', {'form': form})
 
 
-@login_required(login_url='login')
+@login_required(login_url='login') # require the user to be logged in to access this view
 def logout(request):
     auth_logout(request)
     return redirect('login')
@@ -113,6 +115,12 @@ def management(request):
             
         return render(request, 'management.html', {'sql_table': raw_list})
 
+    #If the user uploads files to the server through the webpage
+    elif request.method == 'POST' and request.FILES['myfile']:
+        uploaded_file = request.FILES['myfile'] #get the file from the request
+        fs = FileSystemStorage() #instantiate a file system storage object
+        fs.save(uploaded_file.name, uploaded_file) #save the file to the server
+        return render(request, 'management.html')
 
 
 @login_required(login_url='login')
