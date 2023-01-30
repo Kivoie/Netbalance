@@ -1,0 +1,143 @@
+{
+    "dashboard": {
+        "title": "ALEXS DASH",
+        "panels": [
+            {
+                "id": 2,
+                "gridPos": {
+                  "h": 6,
+                  "w": 13,
+                  "x": 0,
+                  "y": 1
+                },
+                "type": "table",
+                "title": "Panel Title",
+                "datasource": {
+                  "type": "frser-sqlite-datasource",
+                  "uid": "HGE4Vq2Vz"
+                },
+                "pluginVersion": "9.2.6",
+                "fieldConfig": {
+                  "defaults": {
+                    "custom": {
+                      "align": "auto",
+                      "displayMode": "auto",
+                      "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        },
+                        {
+                          "color": "red",
+                          "value": 80
+                        }
+                      ]
+                    },
+                    "color": {
+                      "mode": "thresholds"
+                    }
+                  },
+                  "overrides": [
+                    {
+                      "matcher": {
+                        "id": "byName",
+                        "options": "id"
+                      },
+                      "properties": [
+                        {
+                          "id": "custom.width",
+                          "value": 43
+                        }
+                      ]
+                    },
+                    {
+                      "matcher": {
+                        "id": "byName",
+                        "options": "app_name"
+                      },
+                      "properties": [
+                        {
+                          "id": "custom.width",
+                          "value": 101
+                        }
+                      ]
+                    },
+                    {
+                      "matcher": {
+                        "id": "byName",
+                        "options": "ip"
+                      },
+                      "properties": [
+                        {
+                          "id": "custom.width",
+                          "value": 135
+                        }
+                      ]
+                    },
+                    {
+                      "matcher": {
+                        "id": "byName",
+                        "options": "pending_add"
+                      },
+                      "properties": [
+                        {
+                          "id": "custom.width",
+                          "value": 112
+                        }
+                      ]
+                    },
+                    {
+                      "matcher": {
+                        "id": "byName",
+                        "options": "pending_delete"
+                      },
+                      "properties": [
+                        {
+                          "id": "custom.width",
+                          "value": 122
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "options": {
+                  "showHeader": true,
+                  "footer": {
+                    "show": false,
+                    "reducer": [
+                      "sum"
+                    ],
+                    "fields": ""
+                  },
+                  "sortBy": []
+                },
+                "targets": [
+                  {
+                    "datasource": {
+                      "type": "frser-sqlite-datasource",
+                      "uid": "HGE4Vq2Vz"
+                    },
+                    "queryText": "--SELECT CAST(strftime('%s', 'now', '-1 minute') as INTEGER) as time, 4 as value \n--WHERE time >= $__from / 1000 and time < $__to / 1000;\nSELECT * FROM netbalanceApp_newapplication;",
+                    "queryType": "table",
+                    "rawQueryText": "--SELECT CAST(strftime('%s', 'now', '-1 minute') as INTEGER) as time, 4 as value \n--WHERE time >= $__from / 1000 and time < $__to / 1000;\nSELECT * FROM netbalanceApp_newapplication;",
+                    "refId": "A",
+                    "timeColumns": [
+                      "time",
+                      "ts"
+                    ]
+                  }
+                ]
+              }
+        ],
+        "time": {
+            "from": "now-6h",
+            "to": "now"
+        }
+    }
+}
+
