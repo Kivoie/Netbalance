@@ -8,6 +8,9 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from netbalanceApp.models import NewApplication
 from django.core.files.storage import FileSystemStorage
+import subprocess
+import json
+import requests
 
 #other modules
 from datetime import datetime
@@ -53,7 +56,10 @@ def logout(request):
 @login_required(login_url='login')
 def management(request):
     
-    #POST request to add an entry
+    #API call to get the dashboard of the grafana server, using api key "yJrIjoiZmdsNEQ3SnozaHcxNXFIM1RzRDRCUWVuMGtLNGtrRXkiLCJuIjoiYXBpX2tleSIsImlkIjoxfQ=="
+    if 'grafana-post' in request.POST:
+        subprocess.call(['curl', '-X', 'POST', '-H', 'Content-Type: application/json', '-d', '{"name":"api_key","role":"Viewer","secondsToLive":3600}', 'http://localhost:3000/api/auth/keys'])
+
     if 'add' in request.POST:
         #location = str(request.POST['location'])            #old method
         location = str(request.POST.get('location'))    #new method
@@ -75,7 +81,25 @@ def management(request):
         new_node.save()
         
         print(new_node.location, new_node.ip, new_node.date, new_node.pending_add, new_node.pending_delete, new_node.description)  #debugging
+        # Insert grafana dashboard here
         
+        url = 'http://10.43.3.50:8000/api/dashboards/db'
+        headers = {"Accept": "application/json", 'Content-Type': 'application/json', 'Authorization': 'Bearer <api_key>'}
+
+
+        # open test.json file
+        with open('netbalanceApp/test.json') as f:
+            dashboard = json.load(f)
+
+        # Send the request
+        response = requests.post(url, headers=headers, data=json.dumps(dashboard))
+
+        # Check the response
+        if response.status_code == 200:
+            print('Dashboard created successfully!')
+        else:
+            print(f'Error creating dashboard: {response.text}')
+
         return redirect('management')
         
     #POST request to remove an entry
