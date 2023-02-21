@@ -81,24 +81,27 @@ def management(request):
         new_node.save()
         
         print(new_node.location, new_node.ip, new_node.date, new_node.pending_add, new_node.pending_delete, new_node.description)  #debugging
-        # Insert grafana dashboard here
         
-        url = 'http://10.43.3.50:8000/api/dashboards/db'
-        headers = {"Accept": "application/json", 'Content-Type': 'application/json', 'Authorization': 'Bearer <api_key>'}
+        # GRAFANA DASHBOARD CODE
+            # Insert grafana dashboard here
+            
+            # url = 'http://10.43.3.50:8000/api/dashboards/db'
+            # headers = {"Accept": "application/json", 'Content-Type': 'application/json', 'Authorization': 'Bearer <api_key>'}
 
 
-        # open test.json file
-        with open('netbalanceApp/test.json') as f:
-            dashboard = json.load(f)
+            # open test.json file
+            # with open('netbalanceApp/test.json') as f:    
+            #    dashboard = json.load(f)
 
-        # Send the request
-        response = requests.post(url, headers=headers, data=json.dumps(dashboard))
+            # Send the request
+            # response = requests.post(url, headers=headers, data=json.dumps(dashboard))
 
-        # Check the response
-        if response.status_code == 200:
-            print('Dashboard created successfully!')
-        else:
-            print(f'Error creating dashboard: {response.text}')
+            # Check the response
+            # if response.status_code == 200:
+            #    print('Dashboard created successfully!')
+            # else:
+            #    print(f'Error creating dashboard: {response.text}')
+        
 
         return redirect('management')
         
