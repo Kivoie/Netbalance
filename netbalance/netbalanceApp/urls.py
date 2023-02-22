@@ -10,6 +10,7 @@ urlpatterns = [
     path('management', views.management, name='management'),
     path('homepage', views.homepage, name='homepage'),
     path('mission', views.mission, name='mission'),
+    path('dashboardv2', views.dashboardv2, name='dashboardv2'),
     path('login', views.login, name='login'),
     path('logout', views.logout, name='logout')
 ]

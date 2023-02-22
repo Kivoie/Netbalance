@@ -47,9 +47,82 @@ def register(request):
     return render(request, 'register.html', {'form': form})
 
 
-#view to handle user registrations
+#view to handle the mission page
+@login_required(login_url='login') # require the user to be logged in to access this view
 def mission(request):
     return render(request, 'mission.html')
+
+
+#dashboard v2 view
+@login_required(login_url='login') 
+def dashboardv2(request):
+    if 'add' in request.POST:
+        location = str(request.POST.get('location'))
+        ip_address = str(request.POST.get('ip')).strip()
+        timestamp = datetime.now()
+        timestamp = str(timestamp.strftime("%Y/%m/%d %H:%M:%S")).strip()
+        description = str(request.POST.get('description'))
+        
+        #instantiate an object based on the NewApplication model with the user's given parameters and the computer-generated timestamp.
+        new_node = NewApplication(location=location, ip=ip_address, date=timestamp, pending_add='True', pending_delete='False', description=description)
+        new_node.save()
+        
+        print(new_node.location, new_node.ip, new_node.date, new_node.pending_add, new_node.pending_delete, new_node.description)  #debugging
+        
+        return redirect('dashboardv2')
+        
+    elif 'remove' in request.POST:
+        node_id = int(request.POST.get('node_id'))  #gets user input from the frontend. This can be tricky to form a REGEX pattern from scratch, so it only supports a SINGLE number for now. I will look into this later. hint: use the 're' module in Python. -Danny
+        
+        '''
+        if node_id >= 1:
+            #delete the specified entry or entries from the database
+            NewApplication.objects.filter(id=node_id).delete()
+        '''
+        
+        table = NewApplication.objects.all()
+        
+        counter = 1     #this starts at the first value in the database
+        for entry in table:
+            if node_id == counter:
+                entry.pending_add='False'
+                entry.pending_delete='True'
+                entry.save()
+                del counter     #delete the counter so it cannot be re-used again until re-declared
+                break       #we break because we are only modifying a single entry for now
+            counter += 1
+    
+        return redirect('dashboardv2')
+    
+    
+    elif 'commit' in request.POST:
+        NewApplication.objects.filter(pending_add=1).update(pending_add=0)
+        if NewApplication.objects.filter(pending_delete=1):
+            NewApplication.objects.filter(pending_delete=1).delete() 
+            '''
+            table = NewApplication.objects.all()
+
+            counter = 1     #start with the first entry in the database
+            for entry in table:
+                if entry.pending_delete == 1:
+                    entry.delete()
+                    del counter
+                    break   #this line should be removed if trying to delete multiple entries in a single form submission (plus some other code)
+                counter += 1
+            '''
+        return redirect('dashboardv2')
+        
+    elif request.method == 'GET':
+        raw_list = NewApplication.objects.all().values()
+        return render(request, 'dashboardv2.html', {'sql_table': raw_list})
+
+    #If the user uploads files to the server through the webpage
+    elif request.method == 'POST' and request.FILES['myfile']:
+        uploaded_file = request.FILES['myfile'] #get the file from the request
+        fs = FileSystemStorage() #instantiate a file system storage object
+        fs.save(uploaded_file.name, uploaded_file) #save the file to the server
+        return redirect('dashboardv2')
+
 
 
 @login_required(login_url='login') # require the user to be logged in to access this view
@@ -187,7 +260,6 @@ def management(request):
         return render(request, 'management.html')
 
 def reindex(table_object):
-    
     counter = 1
     for entry in table_object:
         entry.id = counter

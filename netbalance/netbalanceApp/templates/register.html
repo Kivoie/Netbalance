@@ -12,13 +12,26 @@
   <link href="/static/css/register.css" rel="stylesheet">
 </head>
 
-  <body class="bg-light">
+  <body>
+    <div class="container py-3">
+      <header>
+          <div class="d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom">
+              <a href="{% url 'homepage' %}" class="d-flex align-items-center text-dark text-decoration-none">
+              <img src="/static/assets/images/netbalance-full2.png" alt="" width="40" height="40">
+              <img src="/static/assets/images/netbalance-name.png" id="name" alt="" width="150">
+              </a>
+
+              <nav class="mt-2 mt-md-0 ms-md-auto">
+                  <a class="me-3 py-2 text-dark text-decoration-none" href="http://127.0.0.1:8000/admin/auth/user/">{{ user.username }}</a>
+                  <a class="me-3 py-2 text-blue text-decoration-none" href="{% url 'logout' %}">Logout</a>
+              </nav>
+          </div>
+      </header>
+    </div>
+    
     <div class="container">
       <main>
         <div class="py-5 text-center">
-          <a href="{% url 'homepage' %}">
-            <img class="d-block mx-auto mb-4" src="/static/assets/images/netbalance-full2.png" alt="" width="72">
-          </a>
           <h2>Registration</h2>
           <p class="lead">Before creating your own node network, we'll need you to first enter in a couple of
             prerequisites</p>
@@ -78,7 +91,7 @@
               </div>
             </div>
             <hr class="my-4">
-            <button class="w-100 btn btn-primary btn-lg" type="submit">Submit & Continue to management</button>
+            <button class="w-100 btn btn-primary btn-lg" type="submit">Create User</button>
           </form>
           </div>
         </div>
