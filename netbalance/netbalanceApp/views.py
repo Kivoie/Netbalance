@@ -47,6 +47,11 @@ def register(request):
     return render(request, 'register.html', {'form': form})
 
 
+#view to handle user registrations
+def mission(request):
+    return render(request, 'mission.html')
+
+
 @login_required(login_url='login') # require the user to be logged in to access this view
 def logout(request):
     auth_logout(request)

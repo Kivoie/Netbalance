@@ -21,7 +21,7 @@
           </a>
 
           <nav class="mt-2 mt-md-0 ms-md-auto">
-            <a class="me-3 py-2 text-dark text-decoration-none" href="#">{{ user.username }}</a>
+            <a class="me-3 py-2 text-dark text-decoration-none" href="http://127.0.0.1:8000/admin/auth/user/">{{ user.username }}</a>
             <a class="me-3 py-2 text-blue text-decoration-none" href="{% url 'logout' %}">Logout</a>
           </nav>
         </div>
@@ -32,61 +32,69 @@
         </div>
       </header>
 
+
       <main>
-        <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
-          <div class="col">
+        <div class="row row-cols-1 row-cols-md-2 mb-2 text-center">
+          <div class="col" id="box-1">
             <div class="card mb-4 rounded-3 shadow-sm">
-              <div class="card-header py-3">
-                <h4 class="my-0 fw-normal">User Creation</h4>
-              </div>
               <div class="card-body">
-                <ul class="list-unstyled mt-3 mb-4">
-                  <li>Configure administrative privliges for</li>
-                  <li>each user account</li>
-                </ul>
-                <a href="{% url 'register' %}">
-                  <button type="button" class="w-100 btn btn-lg btn-outline-primary">Add User</button>
-                </a>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card mb-4 rounded-3 shadow-sm">
-              <div class="card-header py-3">
-                <h4 class="my-0 fw-normal">Manage Nodes</h4>
-              </div>
-              <div class="card-body">
-                <ul class="list-unstyled mt-3 mb-4">
-                  <li>As easy as uploading your docker file</li>
-                  <li>and adding your servers!</li>
-                </ul>
+                <img src="/static/assets/images/home-img-1.png" class="img" alt="" width="100%" height="100%"> 
                 <a href="{% url 'management' %}">
-                  <button type="button" class="w-100 btn btn-lg btn-primary">Configure</button>
+                <div class="overlay">
+                  <div class="top-text">
+                    <p>Node Configuration</p>
+                  </div>
+                </div>
                 </a>
               </div>
             </div>
           </div>
-          <div class="col">
-            <div class="card mb-4 rounded-3 shadow-sm border-primary">
-              <div class="card-header py-3 text-bg-primary border-primary">
-                <h4 class="my-0 fw-normal">Network Monitoring</h4>
-              </div>
+          <div class="col" id="box-1">
+            <div class="card mb-4 rounded-3 shadow-sm">
               <div class="card-body">
-                <ul class="list-unstyled mt-3 mb-4">
-                  <li>Traffic analyser to keep an eye on number of connections, unexpected outages & much more</li>
-                  <li></li>
-                </ul>
+                <img src="/static/assets/images/home-img-2.jpg" class="img" alt="" width="100%" height="100%"> 
                 <a href="http://10.43.3.50:3000" target="_blank" rel="noopener noreferrer">
-                  <button type="button" class="w-100 btn btn-lg btn-primary">
-                    <img src="/static/assets/images/grafana-200x200.png" alt="" width="24" height="24">
-                    Grafana
-                  </button>
+                <div class="overlay">
+                  <div class="top-text">
+                    <p>Dashboard</p>
+                  </div>
+                </div>
                 </a>
               </div>
             </div>
           </div>
         </div>
-
+        <div class="row row-cols-1 row-cols-md-2 mb-2 text-center">
+          <div class="col" id="box-1">
+            <div class="card mb-4 rounded-3 shadow-sm">
+              <div class="card-body">
+                <img src="/static/assets/images/home-img-4.png" class="img" alt="" width="100%" height="100%"> 
+                <a href="{% url 'mission' %}">
+                <div class="overlay">
+                  <div class="top-text">
+                    <p>Our Mission</p>
+                  </div>
+                </div>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="col" id="box-1">
+            <div class="card mb-4 rounded-3 shadow-sm">
+              <div class="card-body">
+                <img src="/static/assets/images/home-img-3.png" class="img" alt="" width="100%" height="100%"> 
+                <a href="{% url 'register' %}">
+                <div class="overlay">
+                  <div class="top-text">
+                    <p>Create User</p>
+                  </div>
+                </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main> 
         <footer class="pt-4 my-md-5 pt-md-5 border-top">
           <div class="row">
             <div class="col-12 col-md">
