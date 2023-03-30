@@ -1,0 +1,31 @@
+################################################################
+################ Permit root login for workers ###############
+################################################################
+
+- name: PERMIT ROOT LOGIN
+  hosts: worker
+  become: false
+#  vars:
+#     mypassword: "testpass"
+#    ansible_ssh_user: "student"
+#    ansible_sudo_pass: "capstone2022"
+
+  tasks:
+
+############### Copy sshd config ###############
+
+  - name: copy sshd_config
+    ansible.builtin.copy:
+      src: /root/Ansible/files/sshd_config
+      dest: /etc/ssh/sshd_config
+
+############### restart sshd ###############
+
+  - name: reset sshd
+    become: true
+    ansible.builtin.systemd:
+      state: restarted
+      daemon_reload: true
+      name: sshd
+
+##############   ##################
