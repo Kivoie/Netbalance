@@ -128,6 +128,18 @@
     background-color: #0092fc;
 }
 
+
+#credentials{
+    border: #00459a;
+    background-color: #00459a;
+}
+
+#credentials:hover{
+    border: #0092fc;
+    background-color: #0092fc;
+}
+
+
 #remove{
     border: #00459a;
     background-color: #00459a;
@@ -169,3 +181,4 @@
 #upload-card{
     display: none;
 }
+
