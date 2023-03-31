@@ -1,0 +1,1 @@
+[{"targets": ["192.168.2.1"], "labels": {"env": "prod", "job": "node"}}]

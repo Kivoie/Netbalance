@@ -1,0 +1,71 @@
+################################################################
+################ RESET KUBEADM #################################
+################################################################
+
+- name: RESET KUBEADM
+  hosts:
+    worker
+    master
+  vars:
+#     ansible_ssh_user: "root"
+  tasks:
+
+############### reset Kubeadm ###############
+
+  - name: reset Kubeadm
+#    shell: 'cp /etc/kubernetes/admin.conf $HOME/ && chown $(id -u):$(id -g) $HOME/admin.conf && export KUBECONFIG=$HOME/admin.conf && yes | kubeadm reset'
+    shell: 'yes | kubeadm reset'
+    ignore_errors: true
+
+############### delete interfaces ###############
+
+  - name: delete interfaces
+    shell: 'ip link delete cni0 && ip link delete flannel.1'
+    ignore_errors: true
+
+################################################################
+################ CLEAN UP WORKer ################################
+################################################################
+
+- name: RESET KUBEADM
+  hosts:
+    worker
+  vars:
+#     ansible_ssh_user: "root"
+  tasks:
+
+############### delete join command ###############
+
+  - name: delete join command
+    ansible.builtin.file:
+      path: /root/joincluster.sh
+      state: absent
+
+############### Romove installed packages ###############
+
+  - name: Remove Docker
+    ansible.builtin.apt:
+      name: docker.io
+      state: absent
+
+  - name: Install Kubeadm
+    ansible.builtin.apt:
+      name: kubeadm
+      state: absent
+
+  - name: Install Kubelet
+    ansible.builtin.apt:
+      name: kubelet
+      state: absent
+
+  - name: Install Kubectl
+    ansible.builtin.apt:
+      name: kubectl
+      state: absent
+
+  - name: Install Kubernetes cni
+    ansible.builtin.apt:
+      name: kubernetes-cni
+      state: absent    
+
+###############  ###############

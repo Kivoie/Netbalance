@@ -1,0 +1,123 @@
+################################################################
+################ GET IP OF WORkER###############################
+################################################################
+
+- name: GET IP OF WORKER
+  hosts:
+    workertemp
+  vars:
+     ansible_ssh_user: "root"
+  tasks:
+
+############### Display ip ###############
+
+  - name: Display ip
+    shell: ip add | grep "ens" | awk 'NR==2  {print $2}' | cut -f1 -d"/"
+    register: workerremoveip
+    
+############### Save Ip of worker to be rremoed to a file ###############
+
+  - debug:
+     var: workerremoveip.stdout_lines
+
+  - name: Save the token
+    copy:
+      content: "{{ workerremoveip.stdout }}"
+      dest: /root/iptoremove.txt
+      mode: a+x
+    delegate_to: localhost
+
+################################################################
+################ DELETE NODE FROM CLUSTER ###############
+################################################################
+
+- name: INSTALLATION SCRIPT FOR WORKERS
+  hosts: master
+  vars:
+     ansible_ssh_user: "root"
+  tasks:
+
+############### copy file from remote ###############
+
+#  - name: copy file from remote
+#    fetch:
+#      src: /root/iptoremove.txt
+#      dest: /root/
+#      mode: a+x
+
+############### get the ip from the txt ###############
+
+  - name: Get IP from TXT
+    shell: cat /root/iptoremove.txt
+    register: workerip
+
+  - debug:
+      var: workerip.stdout_lines
+
+############### Get node hostname ###############
+
+  - name: Get node name given ip
+    shell: cp /etc/kubernetes/admin.conf $HOME/ && chown $(id -u):$(id -g) $HOME/admin.conf && export KUBECONFIG=$HOME/admin.conf && kubectl get nodes -o wide | grep {{ workerip.stdout }} | awk 'NR==1{print $1}'
+    register: hostname
+
+  - debug:
+     var: hostname.stdout_lines
+
+############### drain node ###############
+
+  - name: Drain node
+    shell: 'cp /etc/kubernetes/admin.conf $HOME/ && chown $(id -u):$(id -g) $HOME/admin.conf && export KUBECONFIG=$HOME/admin.conf && kubectl drain {{ hostname.stdout }} --ignore-daemonsets --delete-local-data'
+
+############### delete node ###############
+
+  - name: Delete node
+    shell: 'cp /etc/kubernetes/admin.conf $HOME/ && chown $(id -u):$(id -g) $HOME/admin.conf && export KUBECONFIG=$HOME/admin.conf && kubectl delete node {{ hostname.stdout }}'
+
+
+################################################################
+################ CLEAN UP WORKer ################################
+################################################################
+
+- name: RESET KUBEADM
+  hosts:
+    workertemp
+  vars:
+     ansible_ssh_user: "root"
+  tasks:
+
+############### delete join command ###############
+
+  - name: delete join command
+    ansible.builtin.file:
+      path: /root/joincluster.sh
+      state: absent
+
+############### Romove installed packages ###############
+
+  - name: Remove Docker
+    ansible.builtin.apt:
+      name: docker.io
+      state: absent
+
+  - name: Install Kubeadm
+    ansible.builtin.apt:
+      name: kubeadm
+      state: absent
+
+  - name: Install Kubelet
+    ansible.builtin.apt:
+      name: kubelet
+      state: absent
+
+  - name: Install Kubectl
+    ansible.builtin.apt:
+      name: kubectl
+      state: absent
+
+  - name: Install Kubernetes cni
+    ansible.builtin.apt:
+      name: kubernetes-cni
+      state: absent    
+
+###############  ###############
+

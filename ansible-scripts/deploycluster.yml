@@ -1,0 +1,260 @@
+
+################################################################
+################ Permit root login for workers ###############
+################################################################
+
+#- name: PERMIT ROOT LOGIN
+#  hosts: worker
+#  become: false
+#  vars:
+#     mypassword: "testpass"
+#    ansible_ssh_user: "student"
+#    ansible_sudo_pass: "capstone2022"
+
+#  tasks:
+
+############### Copy sshd config ###############
+  
+#  - name: copy sshd_config
+#    ansible.builtin.copy:
+#      src: /root/Ansible/files/sshd_config
+#      dest: /etc/ssh/sshd_config
+
+############### restart sshd ###############
+
+#  - name: reset sshd
+#    become: true
+#    ansible.builtin.systemd:
+#      state: restarted
+#      daemon_reload: true
+#      name: sshd
+
+############### set temp root passowrd###############
+
+#  - name: set temp passowrd
+#    ansible.builtin.user:
+#      name: root
+#      state: present
+#      password: "{{ mypassword | password_hash('sha512') }}"      
+
+################################################################
+################ INSTALLATION SCRIPT FOR WORKERS ###############
+################################################################
+
+- name: INSTALLATION SCRIPT FOR WORKERS
+  hosts: worker
+  vars:
+#    ansible_ssh_user: "root"
+#    ansible_sudo_pass: "capstone2022"
+
+#     ansible_ssh_user: "root"
+#  become: true
+  tasks:
+
+############### Disable swap ###############
+
+  - name: Disable swap
+    shell: 'swapoff -a'
+  
+################ Install dependencies ###############
+
+#  - name: Disable firewalld
+#    ansible.builtin.systemd:
+#      name: firewalld
+#      state: stopped
+
+#  - name: Disable firewalld
+#    ansible.builtin.systemd:
+#      name: firewalld
+#      enabled: false
+#      ignore_errors: true
+
+
+#    shell: 'systemctl stop firewalld; systemctl disable firewalld'
+
+#  - name: check
+#    shell: 'systemctl status firewalld'
+#   ignore_errors: true
+#    register: output
+
+#  - debug:
+#      var: output.stdout_lines    
+
+################ Install dependencies ###############
+
+
+################ Install Docker ###############
+
+  - name: Install docker
+    ansible.builtin.apt:
+      name: docker.io
+      state: present
+
+################ Install Transport ###############
+
+  - name: Install Transport
+    shell: 'apt-get install apt-transport-https curl -y'
+
+################ Add repository ###############
+
+  - name: Add keys
+    shell: 'curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add'
+
+  - name: Add repository
+    shell: ' apt-add-repository "deb https://apt.kubernetes.io/ kubernetes-xenial main" '
+
+  - name: Update
+    shell: ' apt update'
+
+################ Install Kubernetes ###############
+
+  - name: Install Kubeadm
+    ansible.builtin.apt:
+      name: kubeadm
+      state: present
+
+  - name: Install Kubelet
+    ansible.builtin.apt:
+      name: kubelet
+      state: present
+
+  - name: Install Kubectl
+    ansible.builtin.apt:
+      name: kubectl
+      state: present
+
+  - name: Install Kubernetes cni
+    ansible.builtin.apt:
+      name: kubernetes-cni
+      state: present  
+
+################################################################
+################ INSTALLATION SCRIPT FOR WORKERS ###############
+################################################################
+
+- name: INITIALIZE CLUSTER ON MASTER
+  hosts: master
+  tasks:
+
+################ Initialize Kubeadm ###############
+
+  - name: Initialize Kubeadm
+    shell: 'kubeadm init --pod-network-cidr=10.244.0.0/16'
+
+################ Fix crypto error ###############
+
+  - name: copy admin.conf
+    ansible.builtin.copy:
+      src: /etc/kubernetes/admin.conf
+      dest: $HOME/
+      #remote_src: yes
+
+  - name: Permissions
+    shell: 'chown $(id -u):$(id -g) $HOME/admin.conf'
+
+  - name: Export
+    shell: 'export KUBECONFIG=$HOME/admin.conf'
+
+################ Apply FLannel ###############
+
+  - name: Apply Flannel
+    shell: 'cp /etc/kubernetes/admin.conf $HOME/ && chown $(id -u):$(id -g) $HOME/admin.conf && export KUBECONFIG=$HOME/admin.conf && kubectl apply -f https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml'
+
+#    shell: 'kubectl apply -f /root/manifests/kube-flannel.yml'
+
+#  - name: Apply Flannel
+#    kubernetes.core.k8s:
+#      state: present
+#      src: /root/manifests/kube-flannel.yml
+
+#  - name: Download and apply
+#    ansible.builtin.get_url:
+#      url: https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml
+#      dest: /root/manifests/kube-flannel.yml
+#      mode: '0664'
+
+#  - name: Apply Flannel
+#    kubernetes.core.k8s:
+#      state: present
+#      src: /root/manifests/kube-flannel.yml
+
+################ Get Token ###############
+
+  - name: Get token
+    shell: 'cp /etc/kubernetes/admin.conf $HOME/ && chown $(id -u):$(id -g) $HOME/admin.conf && export KUBECONFIG=$HOME/admin.conf && kubeadm token create --print-join-command'
+    register: token
+  
+  - debug:
+     var: token.stdout_lines
+
+  - name: Save the token
+    copy:
+      content: "{{ token.stdout }}"
+      dest: joincluster.sh
+      mode: a+x
+    delegate_to: localhost
+
+
+
+################################################################
+################ Join worker to cluster ########################
+################################################################
+
+- name: Join worker to cluster
+  hosts: worker
+  vars:
+#     ansible_ssh_user: "root"
+#    ansible_ssh_user: "root"
+#    ansible_sudo_pass: "capstone2022"
+
+#  become: true
+  tasks:
+
+################ Copy Join command ###############
+
+  - name: Copy join to worker 
+    copy:
+      src: /root/joincluster.sh
+      dest: /root/
+      mode: a+x
+      
+################ Use join token ###############
+
+  - name: Use join token
+#    ansible.builtin.script:
+#      cmd: /root/joincluster.sh
+    shell: 'bash /root/joincluster.sh'
+
+################Deleting Joincluster.sh##############
+
+  - name: delete the joincluster bash
+    shell: 'rm /root/joincluster.sh'
+
+################################################################
+################ Apply Deployment, Metric, HPA #################
+################################################################
+
+- name: Apply Deployment, Metric, HPA
+  hosts: master
+  tasks:
+
+################ Apply Deployment ###############
+
+  - name: Apply deployment
+    shell: 'cp /etc/kubernetes/admin.conf $HOME/ && chown $(id -u):$(id -g) $HOME/admin.conf && export KUBECONFIG=$HOME/admin.conf && kubectl apply -f /root/manifests/deployment.yaml'
+
+################ Apply Metric Server ###############
+
+  - name: Apply Metric Server
+    shell: 'cp /etc/kubernetes/admin.conf $HOME/ && chown $(id -u):$(id -g) $HOME/admin.conf && export KUBECONFIG=$HOME/admin.conf && kubectl apply -f /root/manifests/components.yaml'
+
+################ Run HPA ###############
+  
+  - name: Run HPA
+    shell: 'cp /etc/kubernetes/admin.conf $HOME/ && chown $(id -u):$(id -g) $HOME/admin.conf && export KUBECONFIG=$HOME/admin.conf && kubectl autoscale deployment deploymentnginx --cpu-percent=4 --min=1 --max=10'
+
+################ Cleanup ###############
+
+#  - name: cleanup
+
+################  ###############
