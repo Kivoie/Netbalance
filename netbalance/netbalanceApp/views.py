@@ -12,6 +12,7 @@ import subprocess
 import json
 import requests
 import sqlite3
+import os
 
 #other modules
 from datetime import datetime
@@ -57,6 +58,11 @@ def mission(request):
 #dashboard v2 view
 @login_required(login_url='login') 
 def dashboardv2(request):
+    
+    
+        
+    
+    
     if 'add' in request.POST:
         location = str(request.POST.get('location'))
         ip_address = str(request.POST.get('ip')).strip()
