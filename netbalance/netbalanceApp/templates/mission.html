@@ -29,11 +29,21 @@
         
         <main>
             <h2>Inspiration</h2>
-            <p>Being forced against our will. </p>
+            <p>Our shared passion for networking, coding, and continuous learning has been the driving force behind our research project. Drawing upon the knowledge and skills we have acquired from our background and studies in IT networking technology, we have created a solution that not only automates the deployment and load balancing of websites, but also showcases our abilities and potential as Networking Technlogy graduates. Our drive to push the boundaries of what's possible in the field of IT has been the driving force behind our efforts, and we are proud to have created a truly innovative solution that demonstrates the power of technology in addressing real-world challenges.</p>
             <h2>What it does</h2>
-            <p>No one really knows (ask Wei)</p>            
+            <p>Our project is a management system application that automates the deployment of web-based applications, allowing them to be dynamically scaled based on load. Our application includes a custom web GUI that provides a user-friendly interface for controlling all functionality. It requires little to no technical skill to install and can be used to host on local servers. The application also monitors server statistics in real-time.</p>  
+            <p>The system is hosted on a Raspberry Pi device, which serves as the management plane for the entire system. This makes it fully modular and allows all management applications to be run and processed on the individual device. Nonetheless, we've designed our application to run seamlessly on any computer-system, irrespective of the operating system.</p>  
+            <p>The application utilizes Kubernetes and its scaling/self-healing functions, including horizontal pod auto-scaling, service discovery, and load balancing. The goal is not to replicate Kubernetes but rather to simplify the installation, management, and usage of the architecture dynamically via the Python program.</p>  
+            <p>With this program, users require minimal technical knowledge of how Kubernetes works, and the deployment is fully automated. Users can adjust the number of hosts via the GUI, making it easy to configure servers simplistically without the need to interact directly with Kubernetes.</p>            
             <h2>How we built it</h2> 
-            <p>Paid someone to do it for us.</p>
+            <p>Our project is built on the <strong>Django web framework</strong>, which we utilized to create an advanced web application with features such as authentication, dynamic website components, and security protocols. We also leveraged the vast array of Python libraries available in the Django framework to execute our Ansible automation, and enhance the functionality of the application.</p>
+            <p>To ensure the aesthetics of our web application aligned with its functionality, we incorporated <strong>Bootstrap</strong> into our design process. The end result was a visually stunning and user-friendly interface.</p>
+            <p>When it came to choosing a database management system, we carefully considered our options and ultimately selected <strong>SQLite</strong> for its superior performance and compatibility with the Django web framework. We made an informed decision to opt for a relational database management system over non-relational ones such as MongoDB, given that we did not require the complexity of non-relational databases.</p>
+            <p>kubernets</p>
+            <p>ansible</p>
+            <p>grafana</p>
+            <p>prometheus</p>
+            <p>operating system</p>
             <h2>Challenges we ran into</h2>
             <p>answering presentation questions</p>
             <h2>Accomplishments that we're proud of</h2>
@@ -48,8 +58,7 @@
         <footer class="pt-4 my-md-5 pt-md-5 border-top">
           <div class="row">
             <div class="col-12 col-md">
-              <img class="mb-2" src="/static/assets/images/netbalance-full3.png" alt="" width="24" height="19">
-              <small class="d-block mb-3 text-muted">&copy; 2022–2023</small>
+              <small class="d-block mb-3 text-muted"><img class="mb-2" src="/static/assets/images/netbalance-full3.png" alt="" width="24" height="19">&copy; 2022–2023</small>
             </div>
             <div class="col-6 col-md">
               

@@ -79,21 +79,14 @@ def dashboardv2(request):
         return redirect('dashboardv2')
         
     elif 'commit_pass' in request.POST:
-        contents = """[master]
-10.43.3.50 ansible_connection=ssh ansible_ssh_user=root ansible_ssh_pass=capstone2022
 
-[master:vars]
-ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+        with open('netbalance/netbalanceApp/deployment/hosts_template', 'r') as f:
+            contents = f.read()
+            
 
-[worker]
-
-
-[worker:vars]
-ansible_ssh_common_args='-o StrictHostKeyChecking=no'"""
-
-        with open('hosts.txt', 'w') as f:
-            f.write(contents)
-            f.close()
+            with open('netbalance/netbalanceApp/deployment/hosts', 'w') as f:
+                f.write(contents)
+                f.close()
         
         new_entries = NewApplication.objects.all()
 
@@ -106,7 +99,7 @@ ansible_ssh_common_args='-o StrictHostKeyChecking=no'"""
                 new_entry = NewApplication.objects.all()[i-1]
                 ip_address = new_entry.ip
 
-                with open("hosts.txt", "r+") as f:
+                with open("netbalance/netbalanceApp/deployment/hosts", "r+") as f:
                     contents = f.read()
 
                     index = contents.index("[worker]\n") + len("[worker]\n")
@@ -157,6 +150,11 @@ ansible_ssh_common_args='-o StrictHostKeyChecking=no'"""
                     break   #this line should be removed if trying to delete multiple entries in a single form submission (plus some other code)
                 counter += 1
             '''            
+        
+        # if del
+        
+        # if add    
+            
         return redirect('dashboardv2')
         
     elif request.method == 'GET':
