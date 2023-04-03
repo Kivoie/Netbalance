@@ -77,15 +77,15 @@ def dashboardv2(request):
         
     elif 'commit_pass' in request.POST:
 
-        with open('netbalance/deployment/hosts_template', 'r') as f:
+        with open('../deployment/hosts_template', 'r') as f:
             contents = f.read()
             
 
-            with open('netbalance/deployment/add/hosts', 'w') as f:
+            with open('../deployment/add/hosts', 'w') as f:
                 f.write(contents)
                 f.close()
                 
-            with open('netbalance/deployment/del/hosts', 'w') as f:
+            with open('../deployment/del/hosts', 'w') as f:
                 f.write(contents)
                 f.close()
         f.close()
@@ -119,7 +119,7 @@ def dashboardv2(request):
                 ip_address = new_entry.ip
                 
                 if list(add_status)[0] is True:
-                    with open("netbalance/deployment/add/hosts", "r+") as f:
+                    with open("../deployment/add/hosts", "r+") as f:
                         contents = f.read()
 
                         index = contents.index("[worker]\n") + len("[worker]\n")
@@ -130,7 +130,7 @@ def dashboardv2(request):
                         f.truncate()
                     
                 else:    
-                    with open("netbalance/deployment/del/hosts", "r+") as f:
+                    with open("../deployment/del/hosts", "r+") as f:
                         contents = f.read()
 
                         index = contents.index("[worker]\n") + len("[worker]\n")
@@ -171,11 +171,11 @@ def dashboardv2(request):
     
     elif 'commit' in request.POST:
         # run the node join playbook with the add hosts file
-        subprocess.Popen(['ansible-playbook', '/root/Ansible/nodejoin.yml', '--inventory-file=netbalance/deployment/add/hosts'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.Popen(['ansible-playbook', '/root/Ansible/nodejoin.yml', '--inventory-file=../deployment/add/hosts'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         NewApplication.objects.filter(pending_add=1).update(pending_add=0)
         if NewApplication.objects.filter(pending_delete=1):
             # run the node delete playbook with the remove hosts file
-            subprocess.Popen(['ansible-playbook', '/root/Ansible/nodedelete.yml', '--inventory-file=netbalance/deployment/del/hosts'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)   
+            subprocess.Popen(['ansible-playbook', '/root/Ansible/nodedelete.yml', '--inventory-file=../deployment/del/hosts'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)   
             NewApplication.objects.filter(pending_delete=1).delete() 
             '''
             table = NewApplication.objects.all()
