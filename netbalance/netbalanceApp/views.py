@@ -171,11 +171,11 @@ def dashboardv2(request):
     
     elif 'commit' in request.POST:
         # run the node join playbook with the add hosts file
-        subprocess.Popen(['ansible-playbook', '/root/Ansible/nodejoin.yml', '--inventory-file=/root/Ansible/add/hosts'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.Popen(['ansible-playbook', '/root/Ansible/nodejoin.yml', '--inventory-file=netbalance/deployment/add/hosts'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         NewApplication.objects.filter(pending_add=1).update(pending_add=0)
         if NewApplication.objects.filter(pending_delete=1):
             # run the node delete playbook with the remove hosts file
-            subprocess.Popen(['ansible-playbook', '/root/Ansible/nodedelete.yml', '--inventory-file=/root/Ansible/remove/hosts'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)   
+            subprocess.Popen(['ansible-playbook', '/root/Ansible/nodedelete.yml', '--inventory-file=netbalance/deployment/del/hosts'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)   
             NewApplication.objects.filter(pending_delete=1).delete() 
             '''
             table = NewApplication.objects.all()
