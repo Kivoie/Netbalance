@@ -8,6 +8,7 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from netbalanceApp.models import NewApplication
 from django.core.files.storage import FileSystemStorage
+from django.db import connection
 import subprocess
 import json
 import requests
@@ -59,10 +60,6 @@ def mission(request):
 @login_required(login_url='login') 
 def dashboardv2(request):
     
-    
-        
-    
-    
     if 'add' in request.POST:
         location = str(request.POST.get('location'))
         ip_address = str(request.POST.get('ip')).strip()
@@ -80,34 +77,68 @@ def dashboardv2(request):
         
     elif 'commit_pass' in request.POST:
 
-        with open('netbalance/netbalanceApp/deployment/hosts_template', 'r') as f:
+        with open('netbalance/deployment/hosts_template', 'r') as f:
             contents = f.read()
             
 
-            with open('netbalance/netbalanceApp/deployment/hosts', 'w') as f:
+            with open('netbalance/deployment/add/hosts', 'w') as f:
                 f.write(contents)
                 f.close()
+                
+            with open('netbalance/deployment/del/hosts', 'w') as f:
+                f.write(contents)
+                f.close()
+        f.close()
         
         new_entries = NewApplication.objects.all()
 
-        for i in range(len(new_entries) + 1):
-            node_username = request.POST.get(f'node_username_{i}')
-            node_password = request.POST.get(f'node_password_{i}')
-            node_root_password = request.POST.get(f'node_root_password_{i}')
+        for i in range(len(new_entries)):
+            node_username = request.POST.get(f'node_username_{i+1}')
+            node_password = request.POST.get(f'node_password_{i+1}')
+            node_root_password = request.POST.get(f'node_root_password_{i+1}')
+            
+            # Opening sql database to find del/add node
+            cursor = connection.cursor()
+            # Check Add
+            cursor.execute(f"SELECT pending_add FROM netbalanceApp_newapplication LIMIT 1 OFFSET {i}")
+            add_status = cursor.fetchone()
+            print(list(add_status))
+            
+            # Check Remove
+            cursor.execute(f"SELECT pending_delete FROM netbalanceApp_newapplication LIMIT 1 OFFSET {i}")
+            delete_status = cursor.fetchone()
+            cursor.close()
+            
+            
+            print(i, node_username, node_password, node_root_password)
+            
             if node_username is not None and node_password is not None and node_root_password is not None:
                 
-                new_entry = NewApplication.objects.all()[i-1]
+                
+                new_entry = NewApplication.objects.all()[i]
                 ip_address = new_entry.ip
+                
+                if list(add_status)[0] is True:
+                    with open("netbalance/deployment/add/hosts", "r+") as f:
+                        contents = f.read()
 
-                with open("netbalance/netbalanceApp/deployment/hosts", "r+") as f:
-                    contents = f.read()
+                        index = contents.index("[worker]\n") + len("[worker]\n")
+                        contents = contents[:index] + f"{ip_address} ansible_connection=ssh ansible_ssh_user={node_username} ansible_ssh_pass={node_password} ansible_sudo_pass={node_root_password}\n" + contents[index:]
 
-                    index = contents.index("[worker]\n") + len("[worker]\n")
-                    contents = contents[:index] + f"{ip_address} ansible_connection=ssh ansible_ssh_user={node_username} ansible_ssh_pass={node_password} ansible_sudo_pass={node_root_password}\n" + contents[index:]
+                        f.seek(0)
+                        f.write(contents)
+                        f.truncate()
+                    
+                else:    
+                    with open("netbalance/deployment/del/hosts", "r+") as f:
+                        contents = f.read()
 
-                    f.seek(0)
-                    f.write(contents)
-                    f.truncate()
+                        index = contents.index("[worker]\n") + len("[worker]\n")
+                        contents = contents[:index] + f"{ip_address} ansible_connection=ssh ansible_ssh_user={node_username} ansible_ssh_pass={node_password} ansible_sudo_pass={node_root_password}\n" + contents[index:]
+
+                        f.seek(0)
+                        f.write(contents)
+                        f.truncate()
                     
         return redirect('dashboardv2')
         
@@ -125,10 +156,13 @@ def dashboardv2(request):
         counter = 1     #this starts at the first value in the database
         for entry in table:
             if node_id == counter:
-                entry.pending_add='False'
-                entry.pending_delete='True'
-                entry.save()
-                del counter     #delete the counter so it cannot be re-used again until re-declared
+                if entry.pending_add == True:
+                    entry.delete()
+                else:
+                    entry.pending_add='False'
+                    entry.pending_delete='True'
+                    entry.save()
+                    del counter     #delete the counter so it cannot be re-used again until re-declared
                 break       #we break because we are only modifying a single entry for now
             counter += 1
         
@@ -149,12 +183,13 @@ def dashboardv2(request):
                     del counter
                     break   #this line should be removed if trying to delete multiple entries in a single form submission (plus some other code)
                 counter += 1
-            '''            
-        
-        # if del
-        
-        # if add    
-            
+            '''
+            # run the node join playbook with the add hosts file
+            subprocess.Popen(['ansible-playbook', '/root/Ansible/nodejoin.yml', '--inventory-file=/root/Ansible/add/hosts'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+            # run the node delete playbook with the remove hosts file
+            subprocess.Popen(['ansible-playbook', '/root/Ansible/nodedelete.yml', '--inventory-file=/root/Ansible/remove/hosts'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)            
+                        
         return redirect('dashboardv2')
         
     elif request.method == 'GET':

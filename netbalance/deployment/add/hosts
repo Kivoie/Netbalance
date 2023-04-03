@@ -1,0 +1,12 @@
+[master]
+10.43.3.50 ansible_connection=ssh ansible_ssh_user=root ansible_ssh_pass=capstone2022
+
+[master:vars]
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+
+[worker]
+12.12.12.1 ansible_connection=ssh ansible_ssh_user=4 ansible_ssh_pass=4 ansible_sudo_pass=4
+
+
+[worker:vars]
+ansible_ssh_common_args='-o StrictHostKeyChecking=no
