@@ -4,72 +4,23 @@ Capstone 2022: Data Center Network Monitoring and Web App Service Provisioning A
 
 ## File Structure
 ```
-PS C:\Users\AlexT\Desktop\Projects\Netbalance> tree /F 
-
-
-└───netbalance
-    │   db.sqlite3
-    │   manage.py
-    │
-    ├───netbalanceApp
-    │   │   admin.py
-    │   │   apps.py
-    │   │   forms.py
-    │   │   models.py
-    │   │   test.json
-    │   │   tests.py
-    │   │   urls.py
-    │   │   views.py
-    │   │   __init__.py
-    │   │
-    │   ├───migrations
-    │   │   │   0001_initial.py
-    │   │   │   __init__.py
-    │   │   │
-    │   │   └───__pycache__
-    │   │
-    │   ├───static
-    │   │   ├───assets
-    │   │   │   ├───icon
-    │   │   │   │
-    │   │   │   └───images
-    │   │   │
-    │   │   ├───css
-    │   │   │       bootstrap.min.css
-    │   │   │       dashboard.css
-    │   │   │       homepage.css
-    │   │   │       login.css
-    │   │   │       management.css
-    │   │   │       management.rtl.css
-    │   │   │       mission.css
-    │   │   │       register.css
-    │   │   │
-    │   │   └───javascript
-    │   │           bootstrap.bundle.min.js
-    │   │           bootstrap.bundle.min.js.map
-    │   │           homepage.js
-    │   │           login.js
-    │   │           management.js
-    │   │           register.js
-    │   │
-    │   ├───templates
-    │   │       homepage.html
-    │   │       login.html
-    │   │       management.html
-    │   │       mission.html
-    │   │       register.html
-    │   │
-    │   └───__pycache__
-    │
-    └───netbalanceProject
-        │   asgi.py
-        │   settings.py
-        │   urls.py
-        │   wsgi.py
-        │   __init__.py
-        │
-        └───__pycache__
-
+├───netbalance
+│   ├───netbalanceApp
+│   │   ├───deployment
+│   │   ├───media
+│   │   ├───migrations
+│   │   │   └───__pycache__
+│   │   ├───static
+│   │   │   ├───assets
+│   │   │   │   ├───icon
+│   │   │   │   └───images
+│   │   │   ├───css
+│   │   │   └───javascript
+│   │   ├───templates
+│   │   └───__pycache__
+│   └───netbalanceProject
+│       └───__pycache__
+└───Prometheus Script
 ```
 
 ## Files of Importance
