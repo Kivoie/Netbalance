@@ -77,6 +77,7 @@ def dashboardv2(request):
         
     elif 'commit_pass' in request.POST:
 
+        os.chdir('/home/ubuntu/Netbalance/netbalance/netbalanceApp')
         with open('../deployment/hosts_template', 'r') as f:
             contents = f.read()
             
