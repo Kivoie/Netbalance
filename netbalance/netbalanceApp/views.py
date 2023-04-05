@@ -59,7 +59,16 @@ def mission(request):
 #dashboard v2 view
 @login_required(login_url='login') 
 def dashboardv2(request):
-    
+    #filename in media
+    directory = 'netbalance/netbalanceApp/media'
+    file_name = str(os.listdir(directory))
+
+    if os.path.isdir(directory):
+        if not os.listdir(directory):
+            print("The directory is empty") 
+        else:
+            print("The directory is NOT empty")
+
     if 'add' in request.POST:
         location = str(request.POST.get('location'))
         ip_address = str(request.POST.get('ip')).strip()
@@ -169,7 +178,6 @@ def dashboardv2(request):
         
         return redirect('dashboardv2')
     
-    
     elif 'commit' in request.POST:
         # run the node join playbook with the add hosts file
         subprocess.Popen(['ansible-playbook', '/root/Ansible/nodejoin.yml', '--inventory-file=../deployment/add/hosts'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -193,16 +201,28 @@ def dashboardv2(request):
                         
         return redirect('dashboardv2')
         
-    elif request.method == 'GET':
+        
+    
+        
+    elif request.method == 'GET':           
         raw_list = NewApplication.objects.all().values()
-        return render(request, 'dashboardv2.html', {'sql_table': raw_list})
+        return render(request, 'dashboardv2.html', {'sql_table': raw_list, 'file_name' : file_name})
 
     #If the user uploads files to the server through the webpage
     elif request.method == 'POST' and request.FILES['myfile']:
-        uploaded_file = request.FILES['myfile'] #get the file from the request
-        fs = FileSystemStorage() #instantiate a file system storage object
-        fs.save(uploaded_file.name, uploaded_file) #save the file to the server
+        uploaded_file = request.FILES['myfile']
+        fs = FileSystemStorage()
+        
+        #Deletes all files in media
+        dir_path = "netbalance/netbalanceApp/media"
+        for filename in os.listdir(dir_path):
+            file_path = os.path.join(dir_path, filename)
+            os.remove(file_path)
+            
+        fs.save(uploaded_file.name, uploaded_file) 
         return redirect('dashboardv2')
+    
+    return redirect(request, 'dashboardv2')
 
 
 def reindex(table_object):
