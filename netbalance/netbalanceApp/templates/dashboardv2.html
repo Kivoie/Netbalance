@@ -27,7 +27,7 @@
         </header>
         
         <main>
-          {% if not docker_image_exists %}
+          {% if docker_image_exists %}
           <div class="container d-flex justify-content-center align-items-center min-vh-100">
             <div class="row">
               <div class="col text-center">
@@ -43,7 +43,6 @@
           </div>
           {% endif %}
           
-          {% if docker_image_exists %}
           <div>
             <h2>Application: {{ file_name }} </h2>
             <div class="table-responsive">
@@ -293,7 +292,6 @@
               {% comment %} ------------------------------------------------------------------------------------------------------------------------ {% endcomment %}
             </div>
           </div>
-          {% endif %}
 				</main>
 
 
