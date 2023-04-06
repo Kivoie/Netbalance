@@ -124,11 +124,9 @@ spec:
 
     elif 'reset' in request.POST:
         
-        subprocess.Popen(['ansible-playbook', '/root/Ansible/nodejoin.yml', '--inventory-file=../deployment/add/hosts'])
+        subprocess.Popen(['ansible-playbook', '/root/Ansible/resetcluster.yml', '--inventory-file=../deployment/reset/hosts'])
         NewApplication.objects.filter(pending_add=1).update(pending_add=0)
         if NewApplication.objects.filter(pending_delete=1):
-            # run the node delete playbook with the remove hosts file
-            subprocess.Popen(['ansible-playbook', '/root/Ansible/nodedelete.yml', '--inventory-file=../deployment/del/hosts'])   
             NewApplication.objects.filter(pending_delete=1).delete() 
             '''
             table = NewApplication.objects.all()
