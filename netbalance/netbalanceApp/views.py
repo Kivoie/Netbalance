@@ -267,7 +267,7 @@ spec:
         fs.save(uploaded_file.name, uploaded_file) 
         return redirect('dashboardv2')
     
-    return render('dashboardv2.html')
+    return render(request, 'dashboardv2.html')
 
     
 
