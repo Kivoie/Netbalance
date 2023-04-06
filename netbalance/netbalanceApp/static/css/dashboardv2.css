@@ -160,16 +160,6 @@
     background-color: #0092fc;
 }
 
-#commit{
-    border: #00459a;
-    background-color: #00459a;
-}
-
-#commit:hover{
-    border: #e7603f;
-    background-color: #e7603f;
-}
-
 #add-card{
     display: none;
 }

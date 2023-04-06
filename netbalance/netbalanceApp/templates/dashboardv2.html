@@ -30,9 +30,10 @@
           <div class="container d-flex justify-content-center align-items-center min-vh-100">
             <div class="row">
               <div class="col text-center">
-                <h2>Add Docker Image URL</h2>
+                <img src="/static/assets/images/docker.png" alt="" width="40" height="40">
+                <h2>Add Docker Image URL</h2> 
                 <form method="post" enctype="multipart/form-data" class="management">
-                  <input type="text" id="docker_file" class="btn btn-primary" name="docker_file"></input>
+                  <input type="text" id="docker_file" class="btn btn-primary" name="docker_file" ></input>
                   <button type="submit" id="image-pull" class="btn btn-primary" name="image-pull">Add</button>
                   {% csrf_token %}
                 </form>
@@ -91,14 +92,19 @@
               {% comment %} --------------------------------------------------------------------------------------------- {% endcomment %}  
               <div class="col-md-12 text-right">  
                 <form method="post" class="management">
-                  <button type="button" id="add" class="btn btn-primary">Add</button>
-                  <button type="button" id="remove" class="btn btn-primary">Remove</button>
-                  <button type="button" id="upload" class="btn btn-primary">Upload</button>
-                  <button type="button" id="credentials" class="btn btn-primary" data-toggle="modal" data-target="#Modal">User Credentials</button>
-                  {% csrf_token %}
-                  
+                    <div class="btn-group ml-auto"> <!-- Add a btn-group with ml-auto class to align buttons to the right -->
+                        <button type="button" id="add" class="btn btn-primary">Add</button>
+                        <button type="button" id="remove" class="btn btn-primary">Remove</button>
+                        {% csrf_token %}
+                    </div>
+                    <button type="button" id="credentials" class="btn btn-primary" data-toggle="modal" data-target="#Modal">Commit</button>
+                    <div class="btn-group ml-auto"> <!-- Add another btn-group with ml-auto class to align only "Reset Cluster" button to the right -->
+                        <button type="button" id="reset" class="btn btn-warning">Reset Cluster</button>
+                    </div>
                 </form>
-              </div>
+            </div>
+            
+            
 
               {% comment %} --------------------------------------------------------------------------------------------- {% endcomment %}
               <div class="col-sm-7" id="add-card">
@@ -154,28 +160,6 @@
                         </tr>
                       </form>
                     </table>
-                  </div>
-                </div>
-              </div>
-              {% comment %} --------------------------------------------------------------------------------------------- {% endcomment %}
-              <div class="col-sm-4" id="upload-card">
-                <div class="card">
-                  <h5 class="card-header">Upload Web Application</h5><button type="button" class="btn-close" id="close-3" aria-label="Close"></button>
-                  <div class="card-body">
-                    <form method="post" enctype="multipart/form-data" class="management">
-                      {% csrf_token %}
-                      <table class="table-borderless">
-                        <tr>
-                          <td>
-                            <input type="file" name="myfile">
-                          </td>
-                          <td>
-                            <button type="submit">Upload</button>
-                          </td>
-                        </tr>
-                      </table>
-                    </form>
-                    {{UploadedFile.name}}
                   </div>
                 </div>
               </div>
