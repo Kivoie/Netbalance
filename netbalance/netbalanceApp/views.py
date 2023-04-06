@@ -114,7 +114,7 @@ spec:
       nodePort: 31050
       targetPort: 80
     """)
-        subprocess.Popen(['ansible-playbook', '/root/Ansible/deploycluster.yml'])
+        subprocess.Popen(['ansible-playbook', '/root/Ansible/deploycluster.yml', '--inventory-file=/root/Ansible/hosts'])
         subprocess.Popen(['kubectl', 'create', '-f',  '/root/manifests/deployment.yaml'])
 
 
