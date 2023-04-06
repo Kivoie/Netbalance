@@ -69,7 +69,60 @@ def dashboardv2(request):
     #         return redirect('dashboardv3')
 
 
-    if 'add' in request.POST:
+
+    if 'image-pull' in request.POST:
+        image = str(request.POST.get('docker_file'))
+        print(image)
+        with open('/root/manifests/deployment.yaml', 'w+') as f:
+            f.write(f"""
+piVersion: apps/v1
+kind: Deployment
+metadata:
+name: deploymentnetbalance
+namespace: default
+spec:
+selector:
+    matchLabels:
+    app: netbalance
+template:
+    metadata:
+    labels:
+        app: netbalance
+    spec:
+    containers:
+    - name: netbalance
+        image: {image}
+        ports:
+        - containerPort: 80
+        resources:
+        requests:
+            cpu: "250m"
+        limits:
+            cpu: "500m"
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+name: netbalanceservice
+labels:
+    app: netbalance
+spec:
+selector:
+    app: netbalance
+type: NodePort
+ports:
+    - protocol: TCP
+    port: 80
+    nodePort: 31050
+    targetPort: 80
+    """)
+
+        subprocess.Popen(['docker', 'pull', 'nginx:latest', ';', 'kubectl', 'create', '-f',  '/root/manifests/deployment.yaml'])
+
+
+    elif 'add' in request.POST:
         location = str(request.POST.get('location'))
         ip_address = str(request.POST.get('ip')).strip()
         timestamp = datetime.now()
@@ -197,7 +250,9 @@ def dashboardv2(request):
                     break   #this line should be removed if trying to delete multiple entries in a single form submission (plus some other code)
                 counter += 1
             '''
-                            
+
+    
+
         return redirect('dashboardv2')
         
         

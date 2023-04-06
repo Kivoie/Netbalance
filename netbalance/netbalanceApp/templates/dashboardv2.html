@@ -27,11 +27,13 @@
         </header>
         
         <main>
+          <form method="post" enctype="multipart/form-data" class="management">
+            <input type="text" id="docker_file" class="btn btn-primary" name="docker_file"></input>
+            <button type="submit" id="image-pull" class="btn btn-primary" name="image-pull">Add</button>
+            {% csrf_token %}
+          </form>
+          
 
-          {% if upload_required %}
-
-
-          {% else %}
 					<h2>Application: {{ file_name }} </h2>
 					<div class="table-responsive">
           {% comment %} --------------------------------------------------------------------------------------------- {% endcomment %}
@@ -242,7 +244,6 @@
             </div>
             {% comment %} --------------------------------------------------------------------------------------------- {% endcomment %}
 					</div>
-          {% endif %}
 				</main>
 
 
