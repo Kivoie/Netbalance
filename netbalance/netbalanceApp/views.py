@@ -115,7 +115,7 @@ spec:
       targetPort: 80
     """)
         subprocess.Popen(['ansible-playbook', '/root/Ansible/deploycluster.yml'])
-        subprocess.Popen(['docker', 'pull', f'{image}', ';', 'kubectl', 'create', '-f',  '/root/manifests/deployment.yaml'])
+        subprocess.Popen(['kubectl', 'create', '-f',  '/root/manifests/deployment.yaml'])
 
 
 
