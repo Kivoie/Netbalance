@@ -55,15 +55,160 @@ def register(request):
 def mission(request):
     return render(request, 'mission.html')
 
-def dashboardv3(request):
-    directory = 'netbalance/netbalanceApp/media'
-    file_name = str(os.listdir(directory))
 
-    if os.path.isdir(directory):
-        if os.listdir(directory):
-            return redirect('dashboardv2')
+#dashboard v2 view
+@login_required(login_url='login') 
+def dashboardv2(request):
+    #filename in media
+    # directory = 'netbalance/netbalanceApp/media'
+    # file_name = str(os.listdir(directory))
+
+    # if os.path.isdir(directory):
+    #     if not os.listdir(directory):
+    #         print("The directory is empty") 
+    #         return redirect('dashboardv3')
+
+
+    if 'add' in request.POST:
+        location = str(request.POST.get('location'))
+        ip_address = str(request.POST.get('ip')).strip()
+        timestamp = datetime.now()
+        timestamp = str(timestamp.strftime("%Y/%m/%d %H:%M:%S")).strip()
+        description = str(request.POST.get('description'))
         
-    if request.method == 'POST' and request.FILES['myfile']:
+        #instantiate an object based on the NewApplication model with the user's given parameters and the computer-generated timestamp.
+        new_node = NewApplication(location=location, ip=ip_address, date=timestamp, pending_add='True', pending_delete='False', description=description)
+        new_node.save()
+        
+        print(new_node.location, new_node.ip, new_node.date, new_node.pending_add, new_node.pending_delete, new_node.description)  #debugging
+        
+        return redirect('dashboardv2')
+        
+    elif 'commit_pass' in request.POST:
+
+        os.chdir('/home/ubuntu/Netbalance/netbalance/netbalanceApp')
+        with open('../deployment/hosts_template', 'r') as f:
+            contents = f.read()
+            
+
+            with open('../deployment/add/hosts', 'w') as f:
+                f.write(contents)
+                f.close()
+                
+            with open('../deployment/del/hosts', 'w') as f:
+                f.write(contents)
+                f.close()
+        f.close()
+        
+        new_entries = NewApplication.objects.all()
+
+        for i in range(len(new_entries)):
+            node_username = request.POST.get(f'node_username_{i+1}')
+            node_password = request.POST.get(f'node_password_{i+1}')
+            node_root_password = request.POST.get(f'node_root_password_{i+1}')
+            
+            # Opening sql database to find del/add node
+            cursor = connection.cursor()
+            # Check Add
+            cursor.execute(f"SELECT pending_add FROM netbalanceApp_newapplication LIMIT 1 OFFSET {i}")
+            add_status = cursor.fetchone()
+            print(list(add_status))
+            
+            # Check Remove
+            cursor.execute(f"SELECT pending_delete FROM netbalanceApp_newapplication LIMIT 1 OFFSET {i}")
+            delete_status = cursor.fetchone()
+            cursor.close()
+            
+            
+            print(i, node_username, node_password, node_root_password)
+            
+            if node_username is not None and node_password is not None and node_root_password is not None:
+                
+                
+                new_entry = NewApplication.objects.all()[i]
+                ip_address = new_entry.ip
+                
+                if list(add_status)[0] is True:
+                    with open("../deployment/add/hosts", "r+") as f:
+                        contents = f.read()
+
+                        index = contents.index("[worker]\n") + len("[worker]\n")
+                        contents = contents[:index] + f"{ip_address} ansible_connection=ssh ansible_ssh_user={node_username} ansible_ssh_pass={node_password} ansible_sudo_pass={node_root_password}\n" + contents[index:]
+
+                        f.seek(0)
+                        f.write(contents)
+                        f.truncate()
+                    
+                else:    
+                    with open("../deployment/del/hosts", "r+") as f:
+                        contents = f.read()
+
+                        index = contents.index("[worker]\n") + len("[worker]\n")
+                        contents = contents[:index] + f"{ip_address} ansible_connection=ssh ansible_ssh_user={node_username} ansible_ssh_pass={node_password} ansible_sudo_pass={node_root_password}\n" + contents[index:]
+
+                        f.seek(0)
+                        f.write(contents)
+                        f.truncate()
+                    
+        return redirect('dashboardv2')
+        
+    elif 'remove' in request.POST:
+        node_id = int(request.POST.get('node_id'))  #gets user input from the frontend. This can be tricky to form a REGEX pattern from scratch, so it only supports a SINGLE number for now. I will look into this later. hint: use the 're' module in Python. -Danny
+        
+        '''
+        if node_id >= 1:
+            #delete the specified entry or entries from the database
+            NewApplication.objects.filter(id=node_id).delete()
+        '''
+        
+        table = NewApplication.objects.all()
+        
+        counter = 1     #this starts at the first value in the database
+        for entry in table:
+            if node_id == counter:
+                if entry.pending_add == True:
+                    entry.delete()
+                else:
+                    entry.pending_add='False'
+                    entry.pending_delete='True'
+                    entry.save()
+                    del counter     #delete the counter so it cannot be re-used again until re-declared
+                break       #we break because we are only modifying a single entry for now
+            counter += 1
+        
+        return redirect('dashboardv2')
+    
+    elif 'commit' in request.POST:
+        # run the node join playbook with the add hosts file
+        subprocess.Popen(['ansible-playbook', '/root/Ansible/nodejoin.yml', '--inventory-file=../deployment/add/hosts'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        NewApplication.objects.filter(pending_add=1).update(pending_add=0)
+        if NewApplication.objects.filter(pending_delete=1):
+            # run the node delete playbook with the remove hosts file
+            subprocess.Popen(['ansible-playbook', '/root/Ansible/nodedelete.yml', '--inventory-file=../deployment/del/hosts'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)   
+            NewApplication.objects.filter(pending_delete=1).delete() 
+            '''
+            table = NewApplication.objects.all()
+
+            counter = 1     #start with the first entry in the database
+            for entry in table:
+                if entry.pending_delete == 1:
+                    entry.delete()
+                    del counter
+                    break   #this line should be removed if trying to delete multiple entries in a single form submission (plus some other code)
+                counter += 1
+            '''
+                            
+        return redirect('dashboardv2')
+        
+        
+    
+        
+    elif request.method == 'GET':           
+        raw_list = NewApplication.objects.all().values()
+        return render(request, 'dashboardv2.html', {'sql_table': raw_list})
+
+    #If the user uploads files to the server through the webpage
+    elif request.method == 'POST' and request.FILES['myfile']:
         uploaded_file = request.FILES['myfile']
         fs = FileSystemStorage()
         
@@ -75,178 +220,8 @@ def dashboardv3(request):
             
         fs.save(uploaded_file.name, uploaded_file) 
         return redirect('dashboardv2')
-            
-    return render(request, 'dashboardv3.html')
-
-
-#dashboard v2 view
-@login_required(login_url='login') 
-def dashboardv2(request):
-    #filename in media
-    directory = 'netbalance/netbalanceApp/media'
-    file_name = str(os.listdir(directory))
-
-    if os.path.isdir(directory):
-        if not os.listdir(directory):
-            print("The directory is empty") 
-            return redirect('dashboardv3')
-
-
-
-        else:
-            if 'add' in request.POST:
-                location = str(request.POST.get('location'))
-                ip_address = str(request.POST.get('ip')).strip()
-                timestamp = datetime.now()
-                timestamp = str(timestamp.strftime("%Y/%m/%d %H:%M:%S")).strip()
-                description = str(request.POST.get('description'))
-                
-                #instantiate an object based on the NewApplication model with the user's given parameters and the computer-generated timestamp.
-                new_node = NewApplication(location=location, ip=ip_address, date=timestamp, pending_add='True', pending_delete='False', description=description)
-                new_node.save()
-                
-                print(new_node.location, new_node.ip, new_node.date, new_node.pending_add, new_node.pending_delete, new_node.description)  #debugging
-                
-                return redirect('dashboardv2')
-                
-            elif 'commit_pass' in request.POST:
-
-                os.chdir('/home/ubuntu/Netbalance/netbalance/netbalanceApp')
-                with open('../deployment/hosts_template', 'r') as f:
-                    contents = f.read()
-                    
-
-                    with open('../deployment/add/hosts', 'w') as f:
-                        f.write(contents)
-                        f.close()
-                        
-                    with open('../deployment/del/hosts', 'w') as f:
-                        f.write(contents)
-                        f.close()
-                f.close()
-                
-                new_entries = NewApplication.objects.all()
-
-                for i in range(len(new_entries)):
-                    node_username = request.POST.get(f'node_username_{i+1}')
-                    node_password = request.POST.get(f'node_password_{i+1}')
-                    node_root_password = request.POST.get(f'node_root_password_{i+1}')
-                    
-                    # Opening sql database to find del/add node
-                    cursor = connection.cursor()
-                    # Check Add
-                    cursor.execute(f"SELECT pending_add FROM netbalanceApp_newapplication LIMIT 1 OFFSET {i}")
-                    add_status = cursor.fetchone()
-                    print(list(add_status))
-                    
-                    # Check Remove
-                    cursor.execute(f"SELECT pending_delete FROM netbalanceApp_newapplication LIMIT 1 OFFSET {i}")
-                    delete_status = cursor.fetchone()
-                    cursor.close()
-                    
-                    
-                    print(i, node_username, node_password, node_root_password)
-                    
-                    if node_username is not None and node_password is not None and node_root_password is not None:
-                        
-                        
-                        new_entry = NewApplication.objects.all()[i]
-                        ip_address = new_entry.ip
-                        
-                        if list(add_status)[0] is True:
-                            with open("../deployment/add/hosts", "r+") as f:
-                                contents = f.read()
-
-                                index = contents.index("[worker]\n") + len("[worker]\n")
-                                contents = contents[:index] + f"{ip_address} ansible_connection=ssh ansible_ssh_user={node_username} ansible_ssh_pass={node_password} ansible_sudo_pass={node_root_password}\n" + contents[index:]
-
-                                f.seek(0)
-                                f.write(contents)
-                                f.truncate()
-                            
-                        else:    
-                            with open("../deployment/del/hosts", "r+") as f:
-                                contents = f.read()
-
-                                index = contents.index("[worker]\n") + len("[worker]\n")
-                                contents = contents[:index] + f"{ip_address} ansible_connection=ssh ansible_ssh_user={node_username} ansible_ssh_pass={node_password} ansible_sudo_pass={node_root_password}\n" + contents[index:]
-
-                                f.seek(0)
-                                f.write(contents)
-                                f.truncate()
-                            
-                return redirect('dashboardv2')
-                
-            elif 'remove' in request.POST:
-                node_id = int(request.POST.get('node_id'))  #gets user input from the frontend. This can be tricky to form a REGEX pattern from scratch, so it only supports a SINGLE number for now. I will look into this later. hint: use the 're' module in Python. -Danny
-                
-                '''
-                if node_id >= 1:
-                    #delete the specified entry or entries from the database
-                    NewApplication.objects.filter(id=node_id).delete()
-                '''
-                
-                table = NewApplication.objects.all()
-                
-                counter = 1     #this starts at the first value in the database
-                for entry in table:
-                    if node_id == counter:
-                        if entry.pending_add == True:
-                            entry.delete()
-                        else:
-                            entry.pending_add='False'
-                            entry.pending_delete='True'
-                            entry.save()
-                            del counter     #delete the counter so it cannot be re-used again until re-declared
-                        break       #we break because we are only modifying a single entry for now
-                    counter += 1
-                
-                return redirect('dashboardv2')
-            
-            elif 'commit' in request.POST:
-                # run the node join playbook with the add hosts file
-                subprocess.Popen(['ansible-playbook', '/root/Ansible/nodejoin.yml', '--inventory-file=../deployment/add/hosts'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                NewApplication.objects.filter(pending_add=1).update(pending_add=0)
-                if NewApplication.objects.filter(pending_delete=1):
-                    # run the node delete playbook with the remove hosts file
-                    subprocess.Popen(['ansible-playbook', '/root/Ansible/nodedelete.yml', '--inventory-file=../deployment/del/hosts'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)   
-                    NewApplication.objects.filter(pending_delete=1).delete() 
-                    '''
-                    table = NewApplication.objects.all()
-
-                    counter = 1     #start with the first entry in the database
-                    for entry in table:
-                        if entry.pending_delete == 1:
-                            entry.delete()
-                            del counter
-                            break   #this line should be removed if trying to delete multiple entries in a single form submission (plus some other code)
-                        counter += 1
-                    '''
-                                 
-                return redirect('dashboardv2')
-                
-                
-            
-                
-            elif request.method == 'GET':           
-                raw_list = NewApplication.objects.all().values()
-                return render(request, 'dashboardv2.html', {'sql_table': raw_list, 'file_name' : file_name})
-
-            #If the user uploads files to the server through the webpage
-            elif request.method == 'POST' and request.FILES['myfile']:
-                uploaded_file = request.FILES['myfile']
-                fs = FileSystemStorage()
-                
-                #Deletes all files in media
-                dir_path = "netbalance/netbalanceApp/media"
-                for filename in os.listdir(dir_path):
-                    file_path = os.path.join(dir_path, filename)
-                    os.remove(file_path)
-                    
-                fs.save(uploaded_file.name, uploaded_file) 
-                return redirect('dashboardv2')
-            
-            return redirect(request, 'dashboardv2')
+    
+    return redirect(request, 'dashboardv2')
 
     
 
