@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <link rel="icon" href="/static/assets/icon/netbalance-48x48.ico" />
+    <title>Homepage</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/dashboardv2.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <div class="container py-3">
+        <header>
+            <div class="d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom">
+                <a href="{% url 'homepage' %}" class="d-flex align-items-center text-dark text-decoration-none">
+                <img src="/static/assets/images/netbalance-full2.png" alt="" width="40" height="40">
+                <img src="/static/assets/images/netbalance-name.png" id="name" alt="" width="150">
+                </a>
+                <nav class="mt-2 mt-md-0 ms-md-auto">
+                    <a class="me-3 py-2 text-dark text-decoration-none" href="http://127.0.0.1:8000/admin/auth/user/">{{ user.username }}</a>
+                    <a class="me-3 py-2 text-blue text-decoration-none" href="{% url 'logout' %}">Logout</a>
+                </nav>
+            </div>
+        </header>
+        
+        <main>
+            {% comment %} --------------------------------------------------------------------------------------------- {% endcomment %}  
+            <div class="col-md-12 text-right">  
+              <form method="post" class="management">
+                <button type="button" id="upload" class="btn btn-primary">Upload</button>
+              </form>
+            </div>
+
+            {% comment %} --------------------------------------------------------------------------------------------- {% endcomment %}
+            <div class="col-sm-4" id="upload-card">
+              <div class="card">
+                <h5 class="card-header">Upload Web Application</h5><button type="button" class="btn-close" id="close-3" aria-label="Close"></button>
+                <div class="card-body">
+                  <form method="post" enctype="multipart/form-data" class="management">
+                    {% csrf_token %}
+                    <table class="table-borderless">
+                      <tr>
+                        <td>
+                          <input type="file" name="myfile">
+                        </td>
+                        <td>
+                          <button type="submit">Upload</button>
+                        </td>
+                      </tr>
+                    </table>
+                  </form>
+                  {{UploadedFile.name}}
+                </div>
+              </div>
+            </div>
+					</div>
+				</main>
+
+
+        <footer class="pt-4 my-md-5 pt-md-5 border-top">
+          <div class="row">
+            <div class="col-12 col-md">
+              <small class="d-block mb-3 text-muted"><img class="mb-2" src="/static/assets/images/netbalance-full3.png" alt="" width="24" height="19">&copy; 2022–2023</small>
+            </div>
+            <div class="col-6 col-md">
+              
+            </div>
+            <div class="col-6 col-md">
+              <h5>Resources</h5>
+              <ul class="list-unstyled text-small">
+                <li class="mb-1"><a class="link-secondary text-decoration-none" target="_blank" href="https://docs.google.com/document/d/18nznJ9q0DCfiWNEZeVX0xmJAPhC2IOvKGZhdmn5Fry4/edit?usp=sharing">Documentation</a></li>
+                <li class="mb-1"><a class="link-secondary text-decoration-none" target="_blank" href="https://github.com/Kivoie/Netbalance">GitHub</a></li>
+              </ul>
+            </div>
+            <div class="col-6 col-md">
+              <h5>Contacts</h5>
+              <ul class="list-unstyled text-small">
+                <li class="mb-1"><a class="link-secondary text-decoration-none" href="mailto: netbalance@gmail.com">Email: netbalance@gmail.com</a></li>
+                <li class="mb-1"><a class="link-secondary text-decoration-none" href="tel:+1234567890">Phone: (123) 456-7890</a></li>
+                <li class="mb-1"><a class="link-secondary text-decoration-none" target="_blank" href="https://goo.gl/maps/fFdVnKjgXDrcc5ip7">Location: Carleton University, ON, Canada</a></li>
+              </ul>
+            </div>
+          </div>
+        </footer>
+    </div>
+  </body>
+  <script src="/static/javascript/dashboardv3.js"></script>
+  <script src="/static/javascript/jquery-3.6.0.min.js"></script>
+  <script src="/static/javascript/bootstrap.min.js"></script>
+</html>
+

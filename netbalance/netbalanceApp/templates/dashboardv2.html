@@ -27,6 +27,11 @@
         </header>
         
         <main>
+
+          {% if upload_required %}
+
+
+          {% else %}
 					<h2>Application: {{ file_name }} </h2>
 					<div class="table-responsive">
           {% comment %} --------------------------------------------------------------------------------------------- {% endcomment %}
@@ -237,6 +242,7 @@
             </div>
             {% comment %} --------------------------------------------------------------------------------------------- {% endcomment %}
 					</div>
+          {% endif %}
 				</main>
 
 
