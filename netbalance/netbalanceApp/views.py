@@ -16,7 +16,6 @@ import os
 from datetime import datetime
 
 
-#view for handling login requests
 def login(request):
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
@@ -36,7 +35,7 @@ def login(request):
         form = AuthenticationForm()     #load the authentication form when the user submits a GET request to the web server
     return render(request, 'login.html', {'form': form})
 
-#view to handle user registrations
+@login_required(login_url='login') # require the user to be logged in to access this view
 def register(request):
     form = UserCreationForm()           #load the user create form
     if request.method == 'POST':
@@ -47,25 +46,31 @@ def register(request):
     return render(request, 'register.html', {'form': form})
 
 
-#view to handle the mission page
+
 @login_required(login_url='login') # require the user to be logged in to access this view
 def mission(request):
     return render(request, 'mission.html')
 
 
-#dashboard v2 view
 @login_required(login_url='login') 
 def dashboardv2(request):
-    #filename in media
-    # directory = 'netbalance/netbalanceApp/media'
-    # file_name = str(os.listdir(directory))
 
-    # if os.path.isdir(directory):
-    #     if not os.listdir(directory):
-    #         print("The directory is empty") 
-    #         return redirect('dashboardv3')
+    raw_images = subprocess.Popen('docker images', stdout=subprocess.PIPE, shell=True)
+    output, _ = raw_images.communicate()
 
+    # Convert the output to a string and count the lines
+    docker_line_count = len(output.decode().splitlines())
+    print(docker_line_count)
 
+    if docker_line_count > 1:
+        print('at least one image was found')
+        docker_image_exists = True
+    else:
+        print('no images were found')
+        docker_image_exists = True
+        # subprocess.Popen(['docker', 'pull', 'nginx:latest', ';', 'kubectl', 'create', '-f',  '/root/manifests/deployment.yaml'])
+    
+    
 
     if 'image-pull' in request.POST:
         image = str(request.POST.get('docker_file'))
@@ -117,8 +122,58 @@ spec:
         subprocess.Popen(['ansible-playbook', '/root/Ansible/deploycluster.yml', '--inventory-file=/root/Ansible/hosts'])
         subprocess.Popen(['kubectl', 'create', '-f',  '/root/manifests/deployment.yaml'])
 
+    elif 'reset' in request.POST:
+        
+        subprocess.Popen(['ansible-playbook', '/root/Ansible/nodejoin.yml', '--inventory-file=../deployment/add/hosts'])
+        NewApplication.objects.filter(pending_add=1).update(pending_add=0)
+        if NewApplication.objects.filter(pending_delete=1):
+            # run the node delete playbook with the remove hosts file
+            subprocess.Popen(['ansible-playbook', '/root/Ansible/nodedelete.yml', '--inventory-file=../deployment/del/hosts'])   
+            NewApplication.objects.filter(pending_delete=1).delete() 
+            '''
+            table = NewApplication.objects.all()
 
+            counter = 1     #start with the first entry in the database
+            for entry in table:
+                if entry.pending_delete == 1:
+                    entry.delete()
+                    del counter
+                    break   #this line should be removed if trying to delete multiple entries in a single form submission (plus some other code)
+                counter += 1
+            '''
+        
+        os.chdir('/home/ubuntu/Netbalance/netbalance/netbalanceApp')
+        with open('../deployment/hosts_template', 'r') as f:
+            contents = f.read()
+        
+            with open('../deployment/remove/hosts', 'w') as f:
+                f.write(contents)
+                f.close()
+        f.close()
+        
+        new_entries = NewApplication.objects.all()
+        for i in range(len(new_entries)):
+            node_username = request.POST.get(f'node_username_{i+1}')
+            node_password = request.POST.get(f'node_password_{i+1}')
+            node_root_password = request.POST.get(f'node_root_password_{i+1}')            
+            
+            if node_username is not None and node_password is not None and node_root_password is not None:
+                new_entry = NewApplication.objects.all()[i]
+                ip_address = new_entry.ip
+                
+                with open("../deployment/reset/hosts", "r+") as f:
+                    contents = f.read()
 
+                    index = contents.index("[worker]\n") + len("[worker]\n")
+                    contents = contents[:index] + f"{ip_address} ansible_connection=ssh ansible_ssh_user={node_username} ansible_ssh_pass={node_password} ansible_sudo_pass={node_root_password}\n" + contents[index:]
+
+                    f.seek(0)
+                    f.write(contents)
+                    f.truncate()
+        
+                    
+
+        
     elif 'add' in request.POST:
         location = str(request.POST.get('location'))
         ip_address = str(request.POST.get('ip')).strip()
@@ -253,7 +308,7 @@ spec:
         
     elif request.method == 'GET':           
         raw_list = NewApplication.objects.all().values()
-        return render(request, 'dashboardv2.html', {'sql_table': raw_list})
+        return render(request, 'dashboardv2.html', {'sql_table': raw_list, 'docker_image_exists': docker_image_exists})
 
     #If the user uploads files to the server through the webpage
     elif request.method == 'POST' and request.FILES['myfile']:
@@ -269,9 +324,7 @@ spec:
         fs.save(uploaded_file.name, uploaded_file) 
         return redirect('dashboardv2')
     
-    return render(request, 'dashboardv2.html')
-
-    
+    return render(request, 'dashboardv2.html', {'docker_image_exists': docker_image_exists})
 
 
 def reindex(table_object):

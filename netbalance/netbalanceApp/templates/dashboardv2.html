@@ -27,6 +27,7 @@
         </header>
         
         <main>
+          {% if not docker_image_exists %}
           <div class="container d-flex justify-content-center align-items-center min-vh-100">
             <div class="row">
               <div class="col text-center">
@@ -40,11 +41,9 @@
               </div>
             </div>
           </div>
+          {% endif %}
           
-          
-
-          
-          
+          {% if docker_image_exists %}
           <div>
             <h2>Application: {{ file_name }} </h2>
             <div class="table-responsive">
@@ -99,7 +98,7 @@
                     </div>
                     <button type="button" id="credentials" class="btn btn-primary" data-toggle="modal" data-target="#Modal">Commit</button>
                     <div class="btn-group ml-auto"> <!-- Add another btn-group with ml-auto class to align only "Reset Cluster" button to the right -->
-                        <button type="button" id="reset" class="btn btn-warning">Reset Cluster</button>
+                        <button type="button" id="reset" class="btn btn-warning" data-toggle="modal" data-target="#Modal2">Reset Cluster</button>
                     </div>
                 </form>
             </div>
@@ -115,10 +114,6 @@
                       <form method="post" class="management">
                         <tr>
                           {% csrf_token %}
-                          <!--td>
-                            <label for="node_number">Node #</label>
-                            <input id="node_number" name="node_number" type="number" min="1" max="65535" step="1" required>
-                          </td-->
                           <td>
                             <!--label for="ip">IPv4 Address</label-->
                             <input type="text" minlength="7" maxlength="15" size="15" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" id="ip" name="ip" placeholder="*IPv4 address" required>
@@ -237,9 +232,68 @@
                   </div>
                 </div>
               </div>
-              {% comment %} --------------------------------------------------------------------------------------------- {% endcomment %}
+              {% comment %} ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ {% endcomment %}
+              <div class="modal fade" id="Modal2" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="ModalLabel">Node Credentials</h5>
+                    </div>
+                    <form method="post" enctype="multipart/form-data" class="management">
+                      {% csrf_token %}
+                      {% comment %} ---------------------MODAL---------------- {% endcomment %}
+                      <div class="modal-body">
+                        <table class="table table-striped table-sm">
+                          <thead>
+                            <tr>
+                              <th scope="col">IP Address</th>
+                              <th scope="col">Username</th>
+                              <th scope="col">Password</th>
+                              <th scope="col">Root Password</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                          {% if not sql_table%}
+                            <tr>
+                              <td colspan="6"><i>No nodes added.</i></td>
+                            </tr>
+                            {% else %}
+                            
+                            {% for new_entry in sql_table %}
+                                <tr>
+                                  <td>{{new_entry.ip}}</td>
+                                  <td>
+                                    <input type="text" id="node_username_{{ forloop.counter }}" name="node_username_{{ forloop.counter }}" minlength="1" placeholder="empty" required></input>
+                                  </td>
+                                  <td>
+                                    <input type="password" id="node_password_{{ forloop.counter }}" name="node_password_{{ forloop.counter }}" minlength="1" placeholder="empty" required></input>
+                                  </td>
+                                  <td>
+                                    <input type="password" id="node_root_password_{{ forloop.counter }}" name="node_root_password_{{ forloop.counter }}" minlength="1" placeholder="empty" required></input>
+                                  </td>
+                                  <td></td>
+                                </tr>
+                            {% endfor %}
+                            {% endif %}
+                              
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      {% comment %} ---------------------MODAL---------------- {% endcomment %}
+                    <div class="modal-footer">
+                      <button id="show_passwords" class="btn btn-secondary float-left" name"test">Show Passwords</button>
+                      <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-primary" id="commit" name="reset" onclick="return confirm('This will permanently delete the cluster')">Delete</button>
+                    </div>
+                  </form>
+                  </div>
+                </div>
+              </div>
+              {% comment %} ------------------------------------------------------------------------------------------------------------------------ {% endcomment %}
             </div>
           </div>
+          {% endif %}
 				</main>
 
 
