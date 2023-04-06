@@ -72,48 +72,47 @@ def dashboardv2(request):
         print(image)
         with open('/root/manifests/deployment.yaml', 'w+') as f:
             f.write(f"""
-piVersion: apps/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-name: deploymentnetbalance
-namespace: default
+  name: deploymentnetbalance
+  namespace: default
 spec:
-selector:
+  selector:
     matchLabels:
-    app: netbalance
-template:
+      app: netbalance
+  template:
     metadata:
-    labels:
+      labels:
         app: netbalance
     spec:
-    containers:
-    - name: netbalance
+      containers:
+      - name: netbalance
         image: {image}
         ports:
         - containerPort: 80
         resources:
-        requests:
+          requests:
             cpu: "250m"
-        limits:
+          limits:
             cpu: "500m"
-
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-name: netbalanceservice
-labels:
+  name: netbalanceservice
+  labels:
     app: netbalance
 spec:
-selector:
+  selector:
     app: netbalance
-type: NodePort
-ports:
+  type: NodePort
+  ports:
     - protocol: TCP
-    port: 80
-    nodePort: 31050
-    targetPort: 80
+      port: 80
+      nodePort: 31050
+      targetPort: 80
     """)
         subprocess.Popen(['ansible-playbook', '/root/Ansible/deploycluster.yml'])
         subprocess.Popen(['docker', 'pull', f'{image}', ';', 'kubectl', 'create', '-f',  '/root/manifests/deployment.yaml'])
