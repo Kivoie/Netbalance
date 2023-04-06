@@ -10,9 +10,6 @@ from netbalanceApp.models import NewApplication
 from django.core.files.storage import FileSystemStorage
 from django.db import connection
 import subprocess
-import json
-import requests
-import sqlite3
 import os
 
 #other modules
@@ -119,7 +116,7 @@ ports:
     targetPort: 80
     """)
 
-        subprocess.Popen(['docker', 'pull', 'nginx:latest', ';', 'kubectl', 'create', '-f',  '/root/manifests/deployment.yaml'])
+        subprocess.Popen(['docker', 'pull', f'{image}', ';', 'kubectl', 'create', '-f',  '/root/manifests/deployment.yaml'])
 
 
     elif 'add' in request.POST:
@@ -250,13 +247,7 @@ ports:
                     break   #this line should be removed if trying to delete multiple entries in a single form submission (plus some other code)
                 counter += 1
             '''
-
-    
-
         return redirect('dashboardv2')
-        
-        
-    
         
     elif request.method == 'GET':           
         raw_list = NewApplication.objects.all().values()
