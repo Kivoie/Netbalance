@@ -136,6 +136,24 @@ spec:
         
     elif 'commit_pass' in request.POST:
 
+        subprocess.Popen(['ansible-playbook', '/root/Ansible/nodejoin.yml', '--inventory-file=../deployment/add/hosts'])
+        NewApplication.objects.filter(pending_add=1).update(pending_add=0)
+        if NewApplication.objects.filter(pending_delete=1):
+            # run the node delete playbook with the remove hosts file
+            subprocess.Popen(['ansible-playbook', '/root/Ansible/nodedelete.yml', '--inventory-file=../deployment/del/hosts'])   
+            NewApplication.objects.filter(pending_delete=1).delete() 
+            '''
+            table = NewApplication.objects.all()
+
+            counter = 1     #start with the first entry in the database
+            for entry in table:
+                if entry.pending_delete == 1:
+                    entry.delete()
+                    del counter
+                    break   #this line should be removed if trying to delete multiple entries in a single form submission (plus some other code)
+                counter += 1
+            '''
+
         os.chdir('/home/ubuntu/Netbalance/netbalance/netbalanceApp')
         with open('../deployment/hosts_template', 'r') as f:
             contents = f.read()
@@ -199,7 +217,8 @@ spec:
                         f.seek(0)
                         f.write(contents)
                         f.truncate()
-                    
+         # run the node join playbook with the add hosts file
+       
         return redirect('dashboardv2')
         
     elif 'remove' in request.POST:
@@ -229,24 +248,7 @@ spec:
         return redirect('dashboardv2')
     
     elif 'commit' in request.POST:
-        # run the node join playbook with the add hosts file
-        subprocess.Popen(['ansible-playbook', '/root/Ansible/nodejoin.yml', '--inventory-file=../deployment/add/hosts'])
-        NewApplication.objects.filter(pending_add=1).update(pending_add=0)
-        if NewApplication.objects.filter(pending_delete=1):
-            # run the node delete playbook with the remove hosts file
-            subprocess.Popen(['ansible-playbook', '/root/Ansible/nodedelete.yml', '--inventory-file=../deployment/del/hosts'])   
-            NewApplication.objects.filter(pending_delete=1).delete() 
-            '''
-            table = NewApplication.objects.all()
-
-            counter = 1     #start with the first entry in the database
-            for entry in table:
-                if entry.pending_delete == 1:
-                    entry.delete()
-                    del counter
-                    break   #this line should be removed if trying to delete multiple entries in a single form submission (plus some other code)
-                counter += 1
-            '''
+       
         return redirect('dashboardv2')
         
     elif request.method == 'GET':           

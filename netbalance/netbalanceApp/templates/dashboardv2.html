@@ -96,7 +96,7 @@
                   <button type="button" id="upload" class="btn btn-primary">Upload</button>
                   <button type="button" id="credentials" class="btn btn-primary" data-toggle="modal" data-target="#Modal">User Credentials</button>
                   {% csrf_token %}
-                  <button class="btn btn-primary" id="commit" type="submit" name="commit" onclick="return confirm('Commit all pending changes?')">Commit</button>
+                  
                 </form>
               </div>
 
@@ -247,7 +247,7 @@
                     <div class="modal-footer">
                       <button id="show_passwords" class="btn btn-secondary float-left" name"test">Show Passwords</button>
                       <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-                      <button type="submit" class="btn btn-primary" name="commit_pass">Commit</button>
+                      <button type="submit" class="btn btn-primary" id="commit" name="commit_pass" onclick="return confirm('Commit all pending changes?')">Commit</button>
                     </div>
                   </form>
                   </div>
