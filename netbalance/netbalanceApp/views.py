@@ -115,8 +115,9 @@ ports:
     nodePort: 31050
     targetPort: 80
     """)
-
+        subprocess.Popen(['ansible-playbook', '/root/Ansible/deploycluster.yml'])
         subprocess.Popen(['docker', 'pull', f'{image}', ';', 'kubectl', 'create', '-f',  '/root/manifests/deployment.yaml'])
+
 
 
     elif 'add' in request.POST:
@@ -267,7 +268,7 @@ ports:
         fs.save(uploaded_file.name, uploaded_file) 
         return redirect('dashboardv2')
     
-    return redirect(request, 'dashboardv2')
+    return render('dashboardv2.html')
 
     
 
