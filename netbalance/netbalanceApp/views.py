@@ -11,8 +11,6 @@ from django.core.files.storage import FileSystemStorage
 from django.db import connection
 import subprocess
 import os
-
-#other modules
 from datetime import datetime
 
 
@@ -124,21 +122,7 @@ spec:
 
     elif 'reset' in request.POST:
         
-        subprocess.Popen(['ansible-playbook', '/root/Ansible/resetcluster.yml', '--inventory-file=../deployment/reset/hosts'])
-        NewApplication.objects.filter(pending_add=1).update(pending_add=0)
-        if NewApplication.objects.filter(pending_delete=1):
-            NewApplication.objects.filter(pending_delete=1).delete() 
-            '''
-            table = NewApplication.objects.all()
-
-            counter = 1     #start with the first entry in the database
-            for entry in table:
-                if entry.pending_delete == 1:
-                    entry.delete()
-                    del counter
-                    break   #this line should be removed if trying to delete multiple entries in a single form submission (plus some other code)
-                counter += 1
-            '''
+        
         
         os.chdir('/home/ubuntu/Netbalance/netbalance/netbalanceApp')
         with open('../deployment/hosts_template', 'r') as f:
@@ -168,6 +152,11 @@ spec:
                     f.seek(0)
                     f.write(contents)
                     f.truncate()
+
+        subprocess.Popen(['ansible-playbook', '/root/Ansible/resetcluster.yml', '--inventory-file=../deployment/reset/hosts'])
+        
+        #DELETES DATA ENTRIES
+        NewApplication.objects.all().delete()
         
                     
 
