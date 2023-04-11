@@ -124,7 +124,41 @@ spec:
 
     elif 'reset' in request.POST:
         
-        subprocess.Popen(['ansible-playbook', '/root/Ansible/resetcluster.yml', '--inventory-file=cd /root/Ansible/hosts'])      
+        
+        
+        os.chdir('/home/ubuntu/Netbalance/netbalance/netbalanceApp')
+        with open('../deployment/hosts_template', 'r') as f:
+            contents = f.read()
+        
+            with open('../deployment/remove/hosts', 'w') as f:
+                f.write(contents)
+                f.close()
+        f.close()
+        
+        new_entries = NewApplication.objects.all()
+        for i in range(len(new_entries)):
+            node_username = request.POST.get(f'node_username_{i+1}')
+            node_password = request.POST.get(f'node_password_{i+1}')
+            node_root_password = request.POST.get(f'node_root_password_{i+1}')            
+            
+            if node_username is not None and node_password is not None and node_root_password is not None:
+                new_entry = NewApplication.objects.all()[i]
+                ip_address = new_entry.ip
+                
+                with open("../deployment/reset/hosts", "r+") as f:
+                    contents = f.read()
+
+                    index = contents.index("[worker]\n") + len("[worker]\n")
+                    contents = contents[:index] + f"{ip_address} ansible_connection=ssh ansible_ssh_user={node_username} ansible_ssh_pass={node_password} ansible_sudo_pass={node_root_password}\n" + contents[index:]
+
+                    f.seek(0)
+                    f.write(contents)
+                    f.truncate()
+
+        subprocess.Popen(['ansible-playbook', '/root/Ansible/resetcluster.yml', '--inventory-file=../deployment/reset/hosts'])
+        
+        #DELETES DATA ENTRIES
+        NewApplication.objects.all().delete()
         
                     
 
