@@ -1,5 +1,5 @@
 [master]
-10.43.3.50 ansible_connection=ssh ansible_ssh_user=root ansible_ssh_pass=capstone2022
+localhost ansible_connection=ssh ansible_ssh_user=root ansible_ssh_pass=capstone2022
 
 [master:vars]
 ansible_ssh_common_args='-o StrictHostKeyChecking=no'
